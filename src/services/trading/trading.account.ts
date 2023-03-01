@@ -1,4 +1,4 @@
-import ccxt from 'ccxt'
+import ccxt, { Ticker } from 'ccxt'
 import { Side, Trade } from '../../entities/trade.entities'
 import { ExchangeId } from '../../constants/exchanges.id'
 import { getRelativeOrderSize } from './helpers/getRelativeOrderSize'
@@ -112,7 +112,8 @@ export class TradingAccount {
   }
 
   public async getOpenOrderOptions(
-    trade: Trade
+    trade: Trade,
+    ticker: Ticker
   ): Promise<{ finalSize: number }> {
     const { size, symbol } = trade
     let orderSize = parseFloat(size)
@@ -122,8 +123,7 @@ export class TradingAccount {
       orderSize = getRelativeOrderSize(balance, size)
     }
 
-    const tickerPrice = (await this.getTicker(trade.symbol)).last
-    const finalSize = getTokensAmount(symbol, tickerPrice, orderSize)
+    const finalSize = getTokensAmount(symbol, ticker.last, orderSize)
     return { finalSize }
   }
 }

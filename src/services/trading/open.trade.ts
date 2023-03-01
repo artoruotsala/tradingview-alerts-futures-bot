@@ -21,11 +21,12 @@ export const openTrade = async (trade: Trade): Promise<void> => {
     } = trade
 
     const ticker: Ticker = await account.getTicker(symbol)
-    const { finalSize } = await account.getOpenOrderOptions(trade)
+    const { finalSize } = await account.getOpenOrderOptions(trade, ticker)
 
-    const currentLeverage = await account.getLeverage(symbol)
+    let currentLeverage = await account.getLeverage(symbol)
     if (leverage && leverage !== currentLeverage) {
       await account.changeLeverage(symbol, leverage)
+      currentLeverage = leverage
     }
 
     // closes all old orders (for symbol) before opening new stop loss and take profit orders
@@ -39,7 +40,7 @@ export const openTrade = async (trade: Trade): Promise<void> => {
       order = await account.createMarketOrder(
         symbol,
         direction,
-        finalSize * Number(leverage)
+        finalSize * currentLeverage
       )
     } else {
       const orderPrice = (await account.priceToPrecision(
@@ -49,7 +50,7 @@ export const openTrade = async (trade: Trade): Promise<void> => {
       order = await account.createLimitOrder(
         symbol,
         direction,
-        finalSize * Number(leverage),
+        finalSize * currentLeverage,
         orderPrice
       )
     }
@@ -66,7 +67,7 @@ export const openTrade = async (trade: Trade): Promise<void> => {
         symbol,
         direction === Side.Long ? Side.Short : Side.Long,
         'STOP_MARKET',
-        finalSize * Number(leverage),
+        finalSize * currentLeverage,
         undefined,
         {
           stopPrice,
@@ -89,7 +90,10 @@ export const openTrade = async (trade: Trade): Promise<void> => {
           symbol,
           direction === Side.Long ? Side.Short : Side.Long,
           'TAKE_PROFIT',
-          account.amountToPrecision(symbol, finalSize * leverage * tp.size),
+          account.amountToPrecision(
+            symbol,
+            finalSize * currentLeverage * tp.size
+          ),
           tpPrice,
           {
             stopPrice: tpPrice,
@@ -101,10 +105,10 @@ export const openTrade = async (trade: Trade): Promise<void> => {
 
     direction === Side.Long
       ? info(
-          `Opened long position for ${symbol} at ${ticker.last} with size ${size} and leverage ${leverage}`
+          `Opened long position for ${symbol} at ${ticker.last} with size ${size} and leverage ${currentLeverage}`
         )
       : info(
-          `Opened short position for ${symbol} at ${ticker.last} with size ${size} and leverage ${leverage}`
+          `Opened short position for ${symbol} at ${ticker.last} with size ${size} and leverage ${currentLeverage}`
         )
 
     return order
