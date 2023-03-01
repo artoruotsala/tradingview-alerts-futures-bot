@@ -1,12 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
+import { HttpCode } from '../constants/error.http'
 import { error } from '../services/console.logger'
 import { ERROR } from '../services/logger.messages'
-
-enum HttpCode {
-  BAD_REQUEST = 400,
-  NOT_FOUND = 404,
-  INTERNAL_SERVER_ERROR = 500,
-}
 
 export const errorMiddleware = (
   err: Error,

@@ -6,6 +6,7 @@ import TelegramBot from 'node-telegram-bot-api'
 import { info, warning } from './services/console.logger'
 import { DISCLAIMER, SERVER_RUNNING } from './services/logger.messages'
 import { errorMiddleware } from './middleware/errors.middleware'
+import { tradingRouter } from './routes/trading.routes'
 
 const app = express()
 app.use(cors())
@@ -38,8 +39,9 @@ const PORT = process.env.PORT || 3000
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 app.use(errorMiddleware)
+app.use(tradingRouter)
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   info(SERVER_RUNNING)
   warning(DISCLAIMER)
   // setTelegramCallbacks(telegramBot);
