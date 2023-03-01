@@ -6,6 +6,7 @@ export const getTokensAmount = (
   dollars: number
 ): number => {
   const tokens = dollars / price
+
   if (isNaN(tokens)) {
     error(`Invalid token amount for ${symbol}`)
     throw new Error(`Invalid token amount for ${symbol}`)

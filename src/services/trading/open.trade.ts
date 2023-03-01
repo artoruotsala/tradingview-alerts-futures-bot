@@ -55,13 +55,16 @@ export const openTrade = async (trade: Trade): Promise<void> => {
       )
     }
 
-    if (stopLoss) {
-      const stopPriceRaw = calcStopLoss(
-        parseFloat(price),
-        parseFloat(stopLoss),
+    if (stopLoss && order.price) {
+      const stopPriceFinal = calcStopLoss(
+        order.price,
+        stopLoss,
         direction as Side.Long | Side.Close
       )
-      const stopPrice = account.priceToPrecision(symbol, stopPriceRaw) as number
+      const stopPrice = account.priceToPrecision(
+        symbol,
+        stopPriceFinal
+      ) as number
 
       await account.createOrder(
         symbol,
@@ -76,11 +79,11 @@ export const openTrade = async (trade: Trade): Promise<void> => {
       )
     }
 
-    if (takeProfit && takeProfitLevels) {
+    if (takeProfit && order.price) {
       const takeProfits = calcTakeProfits(
-        parseFloat(price),
-        parseFloat(takeProfit),
-        takeProfitLevels,
+        order.price,
+        takeProfit,
+        takeProfitLevels || [],
         direction === Side.Long ? 'buy' : 'sell'
       )
 
