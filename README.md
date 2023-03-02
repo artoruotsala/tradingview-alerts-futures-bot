@@ -75,11 +75,11 @@ Long trade with 5% of free capital (limit order = price), and stop loss (1.5% fr
 }
 ```
 
-Short trade with 250$ of capital (market price), and stop loss at 20000$ and one take profit at 25000$
+Long trade with 250$ of capital (market price), and stop loss at 20000$ and one take profit at 25000$
 
 ```
 {
-    "direction": "short",
+    "direction": "long",
     "symbol": "BTC/USDT",
     "size": "250",
     "stopLoss": "20000",
@@ -87,7 +87,20 @@ Short trade with 250$ of capital (market price), and stop loss at 20000$ and one
 }
 ```
 
-Short trade with 5% of free capital (limit order = price), and stop loss at 25000$ and 3 take profits
+If your strategy has algorithm for dynamic trade sizes, you can use margin multiplier (trade size in this example 375$)
+
+```
+{
+    "direction": "long",
+    "symbol": "BTC/USDT",
+    "size": "250",
+    "margin": "1.5",
+    "stopLoss": "20000",
+    "takeProfit": "25000"
+}
+```
+
+Short trade with 5% of free capital (market price), and stop loss at 2% and 3 take profits
 
 1. First TP at 33% from the final take profit (size 33%)
 2. Second TP at 66% from the final take profit (size 33%)
@@ -98,18 +111,17 @@ Short trade with 5% of free capital (limit order = price), and stop loss at 2500
     "direction": "short",
     "symbol": "BTC/USDT",
     "size": "5%",
-    "price": "22000",
-    "stopLoss": "25000",
+    "stopLoss": "2%",
     "takeProfit": "5%",
     "takeProfitLevels": [
       {
         "price": "33%",
-        "size": "33%,
+        "size": "33%"
       },
       {
         "price": "66%",
-        "size": "33%,
-      },
+        "size": "33%"
+      }
     ]
 }
 ```
@@ -125,14 +137,15 @@ Close long or short trade (full trade with market price) and also close all open
 ```
 
 Close long or short trade (size 50% with limit order = price) and also close all open orders in that current symbol (stop loss + take profits)
+{{close}} is a placeholder used in Tradingview alerts getting the close price from the Tradingview stragegy
 
 ```
 
 {
-"direction": "close",
-"symbol": "BTC/USDT",
-"size": "50%",
-"price": "23000"
+  "direction": "close",
+  "symbol": "BTC/USDT",
+  "size": "50%",
+  "price": "{{close}}"
 }
 
 ```
