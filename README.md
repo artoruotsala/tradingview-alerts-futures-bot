@@ -52,13 +52,14 @@ chmod +x ./lightsail-deploy.sh
 
 - Use alert -> webhook to your bot http://url/trade :
 
-Long trade with 5% of free capital (market price)
+Long trade with 5% of free capital (market price) and setting leverage to 20. You can leave leverage away from the request, and then the current leverage will be used. Notice that leverage has to be a number - not a string!
 
 ```
 {
     "direction": "long",
     "symbol": "BTC/USDT",
-    "size": "5%"
+    "size": "5%",
+    "leverage": 20
 }
 ```
 
