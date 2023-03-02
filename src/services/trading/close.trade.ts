@@ -17,7 +17,6 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
         reduceOnly: true,
       })
 
-      console.log(contracts, tokens)
       if (contracts === tokens) {
         await account.cancelAllOrders(symbol)
       }

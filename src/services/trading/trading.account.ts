@@ -135,8 +135,8 @@ export class TradingAccount {
     trade: Trade,
     ticker: Ticker
   ): Promise<{ tokens: number }> {
-    const { size, symbol } = trade
-    let orderSize = parseFloat(size)
+    const { size, margin, symbol } = trade
+    let orderSize = parseFloat(size) * (margin ? parseFloat(margin) : 1)
 
     if (size.includes('%')) {
       const balance = await (await this.getBalance()).info.availableBalance
