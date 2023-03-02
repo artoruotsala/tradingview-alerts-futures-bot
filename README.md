@@ -40,11 +40,11 @@ TRADING_API_KEY=
 TRADING_SECRET=
 ' > /srv/.env
 
-curl -o lightsail-compose.sh https://raw.githubusercontent.com/artoruotsala/tradingview-alerts-futures-bot/master/lightsail-compose.sh
+curl -o lightsail-deploy.sh https://raw.githubusercontent.com/artoruotsala/tradingview-alerts-futures-bot/master/lightsail-deploy.sh
 
-chmod +x ./lightsail-compose.sh
+chmod +x ./lightsail-deploy.sh
 
-./lightsail-compose.sh
+./lightsail-deploy.sh
 
 ```
 
