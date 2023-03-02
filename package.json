@@ -1,7 +1,7 @@
 {
-  "name": "tradingview-algotrader",
+  "name": "tradingview-alerts-to-futures-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "TradingView alerts to Futures Bot",
   "main": "index.js",
   "scripts": {
     "clean": "rimraf dist",
@@ -9,7 +9,7 @@
     "dev": "ts-node src/server.ts",
     "build": "npm run clean && tsc --project tsconfig.json"
   },
-  "author": "AR2D2",
+  "author": "Arto R",
   "license": "MIT",
   "dependencies": {
     "ccxt": "^2.8.66",
