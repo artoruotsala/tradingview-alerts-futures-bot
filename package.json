@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node src/server.ts"
+    "dev": "ts-node src/server.ts",
+    "build": "npm run clean && tsc --project tsconfig.json"
   },
   "author": "AR2D2",
   "license": "MIT",
@@ -28,6 +30,7 @@
     "@types/validator": "^13.7.12",
     "@typescript-eslint/eslint-plugin": "^5.54.0",
     "@typescript-eslint/parser": "^5.54.0",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "rimraf": "^4.1.3"
   }
 }
