@@ -30,9 +30,9 @@ export const openTrade = async (trade: Trade) => {
     }
 
     // closes all old orders (for symbol) before opening new stop loss and take profit orders
-    if (stopLoss || takeProfit) {
-      await account.cancelAllOrders(symbol)
-    }
+    // if (stopLoss || takeProfit) {
+    //   await account.cancelAllOrders(symbol)
+    // }
 
     let order
 

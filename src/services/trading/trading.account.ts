@@ -122,11 +122,13 @@ export class TradingAccount {
   }
 
   public priceToPrecision(symbol: string, price: number): number {
-    return this.exchange.priceToPrecision(symbol, price)
+    const priceToPre = this.exchange.priceToPrecision(symbol, price)
+    return parseFloat(priceToPre)
   }
 
   public amountToPrecision(symbol: string, amount: number): number {
-    return this.exchange.amountToPrecision(symbol, amount)
+    const amountToPre = this.exchange.amountToPrecision(symbol, amount)
+    return parseFloat(amountToPre)
   }
 
   public async getOpenOrderOptions(
@@ -145,9 +147,11 @@ export class TradingAccount {
     return { tokens: this.amountToPrecision(symbol, tokens) }
   }
 
-  public async getCloseOrderOptions(
-    trade: Trade
-  ): Promise<{ tokens: number; side: Side.Short | Side.Long }> {
+  public async getCloseOrderOptions(trade: Trade): Promise<{
+    tokens: number
+    contracts: number
+    side: Side.Short | Side.Long
+  }> {
     const { size, symbol } = trade
     let orderSize = parseFloat(size)
 
@@ -172,6 +176,7 @@ export class TradingAccount {
 
     return {
       tokens: this.amountToPrecision(symbol, tokens),
+      contracts,
       side: side === 'long' ? Side.Short : Side.Long,
     }
   }
