@@ -137,8 +137,8 @@ Close long or short trade (full trade with market price) and also close all open
 }
 ```
 
-Close long or short trade (size 50% with limit order = price) and also close all open orders in that current symbol (stop loss + take profits)
-{{close}} is a placeholder used in Tradingview alerts getting the close price from the Tradingview stragegy
+Close 50% of long or short trade (with limit order = price).
+{{close}} is a placeholder used in Tradingview alerts for getting the close price from the Tradingview stragegy
 
 ```
 
