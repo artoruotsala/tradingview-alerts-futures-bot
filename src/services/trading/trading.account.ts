@@ -7,18 +7,22 @@ import { getTokensAmount } from './helpers/getTokensAmount'
 export class TradingAccount {
   private static instance: TradingAccount
   private exchange: ccxt.Exchange
+  private exchangeId: string
 
   private constructor() {
     const paper = process.env.PAPER === 'true'
 
-    const exchangeId = paper
+    this.exchangeId = paper
       ? process.env.PAPER_EXCHANGE_ID
       : process.env.EXCHANGE_ID
 
-    if (exchangeId !== 'binanceusdm' && exchangeId !== 'bybit') {
+    if (this.exchangeId !== 'binanceusdm' && this.exchangeId !== 'bybit') {
       throw new Error('Binance or Bybit exchange is required')
     }
-    this.exchange = new ccxt[exchangeId]()
+    this.exchange = new ccxt[this.exchangeId]()
+
+    if (this.exchangeId === 'bybit')
+      this.exchange['options']['defaultType'] = 'future'
 
     this.exchange.apiKey = paper
       ? process.env.PAPER_TRADING_API_KEY
@@ -47,20 +51,33 @@ export class TradingAccount {
   }
 
   public async getPosition(symbol: string): Promise<any> {
-    return await this.exchange.fetchPositionsRisk([symbol])
+    if (this.exchangeId === 'binanceusdm') {
+      return await this.exchange.fetchPositionsRisk([symbol])
+    } else if (this.exchangeId === 'bybit') {
+      return await this.exchange.fetchPosition(symbol)
+    }
   }
 
   public async getLeverage(symbol: string): Promise<number> {
-    const leverage = (
-      await this.exchange.fapiPrivateGetPositionRisk({
-        symbol: symbol.replace('/', ''),
-      })
-    )?.[0]?.leverage
+    let leverage = 1
+    if (this.exchangeId === 'binanceusdm') {
+      leverage = (
+        await this.exchange.fapiPrivateGetPositionRisk({
+          symbol: symbol.replace('/', ''),
+        })
+      )?.[0]?.leverage
+    } else if (this.exchangeId === 'bybit') {
+      leverage = (await this.exchange.fetchPosition(symbol)).leverage
+    }
     return leverage
   }
 
   public async changeLeverage(symbol: string, leverage: number): Promise<void> {
-    await this.exchange.setLeverage(leverage, symbol.replace('/', ''))
+    if (this.exchangeId === 'binanceusdm') {
+      await this.exchange.setLeverage(leverage, symbol.replace('/', ''))
+    } else if (this.exchangeId === 'bybit') {
+      await this.exchange.setLeverage(leverage, symbol)
+    }
   }
 
   public async cancelAllOrders(symbol: string): Promise<void> {
@@ -147,7 +164,11 @@ export class TradingAccount {
     let orderSize = parseFloat(size) * (margin ? parseFloat(margin) : 1)
 
     if (size.includes('%')) {
-      const balance = await (await this.getBalance()).info.availableBalance
+      let balance = 0
+      if (this.exchangeId === 'bybit')
+        balance = (await this.getBalance()).USDT.free
+      else if (this.exchangeId === 'binanceusdm')
+        balance = await (await this.getBalance()).info.availableBalance
       orderSize = getRelativeOrderSize(balance, size)
     }
 
@@ -164,9 +185,12 @@ export class TradingAccount {
     let orderSize = parseFloat(size)
 
     const position = await this.getPosition(symbol)
-    const contracts = position?.[0]?.contracts
-    const side = position?.[0]?.side
-    const leverage = position?.[0]?.leverage
+    const fPosition =
+      this.exchangeId === 'binanceusdm' ? position?.[0] : position
+
+    const contracts = fPosition?.contracts
+    const side = fPosition?.side
+    const leverage = fPosition?.leverage
 
     if (!contracts) {
       throw new Error('No open position')

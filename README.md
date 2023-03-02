@@ -1,8 +1,17 @@
-# Tradingview Alerts to Futures bot v.1.0
+# Tradingview Alerts to Futures bot v.1.0 (Binance | Bybit)
 
 ## Getting started
 
-An updated version of my previous Tradingview processor. This bot places orders from Tradingview signals (webhook) to Binance Futures USDT-M. The bot can easily be deployed to AWS Lightsail. This has only been tested with Binance Futures USDT-M but it might work with other exchanges as well.
+An updated version of my previous Tradingview processor. This bot places orders from Tradingview signals (webhook) to Binance or Bybit Futures. The bot can easily be deployed to AWS Lightsail.
+
+_Binance working 100%_
+
+_Bybit working about 50%_
+Symbols must be in a form of BTC/USDT:USDT to trade in perpetual futures
+Things not working yet:
+
+- setting stop loss
+- setting take profits
 
 The bot has a simple Telegram integration. Currently you can turn on / off trades with Telegram messages.
 

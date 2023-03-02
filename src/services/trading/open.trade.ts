@@ -29,11 +29,6 @@ export const openTrade = async (trade: Trade) => {
       currentLeverage = leverage
     }
 
-    // closes all old orders (for symbol) before opening new stop loss and take profit orders
-    // if (stopLoss || takeProfit) {
-    //   await account.cancelAllOrders(symbol)
-    // }
-
     let order
 
     if (!price) {
