@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express'
+import { closeTrade } from '../services/trading/close.trade'
 import { HttpCode } from '../constants/error.http'
 import { Side, Trade } from '../entities/trade.entities'
 import { openTrade } from '../services/trading/open.trade'
@@ -8,19 +9,33 @@ const router = Router()
 
 export const postTrade = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { direction, symbol }: Trade = req.body
+    const { direction, symbol, size, leverage }: Trade = req.body
 
     if (direction === Side.Long || direction === Side.Short) {
       await openTrade(req.body)
+      res.write(
+        JSON.stringify({
+          message: `Trade ${direction} | ${symbol} | ${
+            size.includes('%') ? `${size}` : `${size}$`
+          }${leverage ? `| leverage: ${leverage}` : ''} success!`,
+        })
+      )
+    } else if (direction === Side.Close) {
+      await closeTrade(req.body)
+      res.write(
+        JSON.stringify({
+          message: `Trade ${direction} | ${symbol} | ${
+            size.includes('%') ? `${size}` : `${size}$`
+          } success!`,
+        })
+      )
     } else {
+      res.write(
+        JSON.stringify({
+          message: `Invalid direction: ${direction}`,
+        })
+      )
     }
-    // await closeTrade(req.body)
-
-    res.write(
-      JSON.stringify({
-        message: `Trade ${direction} | ${symbol} success!`,
-      })
-    )
   } catch (err) {
     res.writeHead(HttpCode.INTERNAL_SERVER_ERROR)
     res.write(

@@ -38,6 +38,10 @@ export class TradingAccount {
     return await this.exchange.fetchTicker(symbol)
   }
 
+  public async getPosition(symbol: string): Promise<any> {
+    return await this.exchange.fetchPositionsRisk([symbol])
+  }
+
   public async getLeverage(symbol: string): Promise<number> {
     const leverage = (
       await this.exchange.fapiPrivateGetPositionRisk({
@@ -51,27 +55,41 @@ export class TradingAccount {
     await this.exchange.setLeverage(leverage, symbol.replace('/', ''))
   }
 
-  public async closeAllOrders(symbol: string): Promise<void> {
+  public async cancelAllOrders(symbol: string): Promise<void> {
     await this.exchange.cancelAllOrders(symbol)
   }
 
   public async createMarketOrder(
     symbol: string,
     side: Side,
-    size: number
+    size: number,
+    params?: any
   ): Promise<ccxt.Order> {
     const finalSide = side === Side.Long ? 'buy' : 'sell'
-    return await this.exchange.createMarketOrder(symbol, finalSide, size)
+    return await this.exchange.createMarketOrder(
+      symbol,
+      finalSide,
+      size,
+      undefined,
+      params
+    )
   }
 
   public async createLimitOrder(
     symbol: string,
     side: Side,
     size: number,
-    price: number
+    price: number,
+    params?: any
   ): Promise<ccxt.Order> {
     const finalSide = side === Side.Long ? 'buy' : 'sell'
-    return await this.exchange.createLimitOrder(symbol, finalSide, size, price)
+    return await this.exchange.createLimitOrder(
+      symbol,
+      finalSide,
+      size,
+      price,
+      params
+    )
   }
 
   public async createOrder(
@@ -114,7 +132,7 @@ export class TradingAccount {
   public async getOpenOrderOptions(
     trade: Trade,
     ticker: Ticker
-  ): Promise<{ finalSize: number }> {
+  ): Promise<{ tokens: number }> {
     const { size, symbol } = trade
     let orderSize = parseFloat(size)
 
@@ -123,7 +141,38 @@ export class TradingAccount {
       orderSize = getRelativeOrderSize(balance, size)
     }
 
-    const finalSize = getTokensAmount(symbol, ticker.last, orderSize)
-    return { finalSize }
+    const tokens = getTokensAmount(symbol, ticker.last, orderSize)
+    return { tokens: this.amountToPrecision(symbol, tokens) }
+  }
+
+  public async getCloseOrderOptions(
+    trade: Trade
+  ): Promise<{ tokens: number; side: Side.Short | Side.Long }> {
+    const { size, symbol } = trade
+    let orderSize = parseFloat(size)
+
+    const position = await this.getPosition(symbol)
+    const contracts = position?.[0]?.contracts
+    const side = position?.[0]?.side
+    const leverage = position?.[0]?.leverage
+
+    if (!contracts) {
+      throw new Error('No open position')
+    }
+
+    let tokens = 0
+    if (size.includes('%')) {
+      if (size === '100%') {
+        tokens = contracts
+      } else tokens = getRelativeOrderSize(contracts, size)
+    } else {
+      const ticker: Ticker = await this.getTicker(symbol)
+      tokens = getTokensAmount(symbol, ticker.last, orderSize * leverage)
+    }
+
+    return {
+      tokens: this.amountToPrecision(symbol, tokens),
+      side: side === 'long' ? Side.Short : Side.Long,
+    }
   }
 }

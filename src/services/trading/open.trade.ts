@@ -5,7 +5,7 @@ import { calcStopLoss } from './helpers/calcStopLoss'
 import { calcTakeProfits } from './helpers/calcTakeProfits'
 import { TradingAccount } from './trading.account'
 
-export const openTrade = async (trade: Trade): Promise<void> => {
+export const openTrade = async (trade: Trade) => {
   const account = TradingAccount.getInstance()
 
   try {
@@ -21,7 +21,7 @@ export const openTrade = async (trade: Trade): Promise<void> => {
     } = trade
 
     const ticker: Ticker = await account.getTicker(symbol)
-    const { finalSize } = await account.getOpenOrderOptions(trade, ticker)
+    const { tokens } = await account.getOpenOrderOptions(trade, ticker)
 
     let currentLeverage = await account.getLeverage(symbol)
     if (leverage && leverage !== currentLeverage) {
@@ -31,7 +31,7 @@ export const openTrade = async (trade: Trade): Promise<void> => {
 
     // closes all old orders (for symbol) before opening new stop loss and take profit orders
     if (stopLoss || takeProfit) {
-      await account.closeAllOrders(symbol)
+      await account.cancelAllOrders(symbol)
     }
 
     let order
@@ -40,7 +40,7 @@ export const openTrade = async (trade: Trade): Promise<void> => {
       order = await account.createMarketOrder(
         symbol,
         direction,
-        finalSize * currentLeverage
+        tokens * currentLeverage
       )
     } else {
       const orderPrice = (await account.priceToPrecision(
@@ -50,7 +50,7 @@ export const openTrade = async (trade: Trade): Promise<void> => {
       order = await account.createLimitOrder(
         symbol,
         direction,
-        finalSize * currentLeverage,
+        tokens * currentLeverage,
         orderPrice
       )
     }
@@ -70,7 +70,7 @@ export const openTrade = async (trade: Trade): Promise<void> => {
         symbol,
         direction === Side.Long ? Side.Short : Side.Long,
         'STOP_MARKET',
-        finalSize * currentLeverage,
+        tokens * currentLeverage,
         undefined,
         {
           stopPrice,
@@ -93,10 +93,7 @@ export const openTrade = async (trade: Trade): Promise<void> => {
           symbol,
           direction === Side.Long ? Side.Short : Side.Long,
           'TAKE_PROFIT',
-          account.amountToPrecision(
-            symbol,
-            finalSize * currentLeverage * tp.size
-          ),
+          account.amountToPrecision(symbol, tokens * currentLeverage * tp.size),
           tpPrice,
           {
             stopPrice: tpPrice,
@@ -115,5 +112,7 @@ export const openTrade = async (trade: Trade): Promise<void> => {
         )
 
     return order
-  } catch (error) {}
+  } catch (error) {
+    throw error
+  }
 }
