@@ -4,12 +4,17 @@ import { HttpCode } from '../constants/error.http'
 import { Side, Trade } from '../entities/trade.entities'
 import { openTrade } from '../services/trading/open.trade'
 import { validateTrade } from '../validators/trade.validator'
+import { TradingExecutor } from '../services/trading/trading.executor'
 
 const router = Router()
 
 export const postTrade = async (req: Request, res: Response): Promise<void> => {
   try {
     const { direction, symbol, size, leverage }: Trade = req.body
+
+    if (!TradingExecutor.Trades) {
+      throw new Error('Trading is disabled')
+    }
 
     if (direction === Side.Long || direction === Side.Short) {
       await openTrade(req.body)
@@ -40,7 +45,7 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
     res.writeHead(HttpCode.INTERNAL_SERVER_ERROR)
     res.write(
       JSON.stringify({
-        message: err.message,
+        error: err.message,
       })
     )
   }

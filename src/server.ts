@@ -7,6 +7,7 @@ import { info, warning } from './services/console.logger'
 import { DISCLAIMER, SERVER_RUNNING } from './services/logger.messages'
 import { errorMiddleware } from './middleware/errors.middleware'
 import { tradingRouter } from './routes/trading.routes'
+import { setTelegramCallbacks } from './services/telegram/setTelegramCallbacks'
 
 const app = express()
 app.use(cors())
@@ -17,11 +18,7 @@ app.use(
   })
 )
 
-// check if JSON is valid
 app.use(function (error: any, req: any, res: any, next: NextFunction) {
-  // // check user-agent
-  // const correctUserAgent = req.headers['user-agent'].includes('ArtoTrader');
-
   if (error) {
     res.status(400).send('Invalid JSON')
   } else {
@@ -29,10 +26,14 @@ app.use(function (error: any, req: any, res: any, next: NextFunction) {
   }
 })
 
+const tgToken = process.env.TELEGRAM_TOKEN_LIVE
+
 export const chatId = process.env.TELEGRAM_CHAT_ID_LIVE
-export const telegramBot = new TelegramBot(process.env.TELEGRAM_TOKEN_LIVE!, {
-  polling: true,
-})
+export const telegramBot = tgToken
+  ? new TelegramBot(tgToken, {
+      polling: true,
+    })
+  : null
 
 const PORT = process.env.PORT || 3000
 
@@ -44,5 +45,5 @@ app.use(tradingRouter)
 app.listen(PORT, async () => {
   info(SERVER_RUNNING)
   warning(DISCLAIMER)
-  // setTelegramCallbacks(telegramBot);
+  if (telegramBot) setTelegramCallbacks(telegramBot)
 })

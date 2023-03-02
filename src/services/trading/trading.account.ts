@@ -9,17 +9,25 @@ export class TradingAccount {
   private exchange: ccxt.Exchange
 
   private constructor() {
-    const exchangeId: string = process.env.EXCHANGE_ID as string
+    const paper = process.env.PAPER === 'true'
+
+    const exchangeId = paper
+      ? process.env.PAPER_EXCHANGE_ID
+      : process.env.EXCHANGE_ID
+
     if (exchangeId !== 'binanceusdm' && exchangeId !== 'bybit') {
       throw new Error('Binance or Bybit exchange is required')
     }
     this.exchange = new ccxt[exchangeId]()
 
-    this.exchange.apiKey = process.env.TRADING_API_KEY
-    this.exchange.secret = process.env.TRADING_SECRET
+    this.exchange.apiKey = paper
+      ? process.env.PAPER_TRADING_API_KEY
+      : process.env.TRADING_API_KEY
+    this.exchange.secret = paper
+      ? process.env.PAPER_TRADING_SECRET
+      : process.env.TRADING_SECRET
     this.exchange.enableRateLimit = true
 
-    const paper = process.env.PAPER === 'true'
     this.exchange.setSandboxMode(paper)
   }
 
