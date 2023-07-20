@@ -15,6 +15,11 @@ chmod +x /usr/local/bin/docker-compose
 # WorkingDirectory=[whatever you have below]
 mkdir /srv/docker
 git clone https://github.com/artoruotsala/tradingview-alerts-futures-bot.git /srv/docker
+
+# Checkout the specific branch
+cd /srv/docker
+git checkout test/binance-spot
+
 mv /srv/.env /srv/docker/.env
 
 # copy in systemd unit file and register it so our compose file runs 
@@ -23,5 +28,4 @@ curl -o /etc/systemd/system/docker-compose-app.service https://raw.githubusercon
 systemctl enable docker-compose-app
 
 # start up the application via docker-compose
-cd /srv/docker
 docker-compose up --build -d
