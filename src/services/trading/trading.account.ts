@@ -1,4 +1,4 @@
-import ccxt, { Ticker } from 'ccxt'
+import ccxt, { Balances, Exchange, Order, Ticker } from 'ccxt'
 import { Side, Trade } from '../../entities/trade.entities'
 import { ExchangeId } from '../../constants/exchanges.id'
 import { getRelativeOrderSize } from './helpers/getRelativeOrderSize'
@@ -6,7 +6,7 @@ import { getTokensAmount } from './helpers/getTokensAmount'
 
 export class TradingAccount {
   private static instance: TradingAccount
-  private exchange: ccxt.Exchange
+  private exchange: Exchange
   private exchangeId: string
 
   private constructor() {
@@ -16,7 +16,11 @@ export class TradingAccount {
       ? process.env.PAPER_EXCHANGE_ID
       : process.env.EXCHANGE_ID
 
-    if (this.exchangeId !== 'binanceusdm' && this.exchangeId !== 'bybit') {
+    if (
+      this.exchangeId !== 'binanceusdm' &&
+      this.exchangeId !== 'bybit' &&
+      this.exchangeId !== 'binance'
+    ) {
       throw new Error('Binance or Bybit exchange is required')
     }
     this.exchange = new ccxt[this.exchangeId]()
@@ -42,33 +46,37 @@ export class TradingAccount {
     return TradingAccount.instance
   }
 
-  public async getBalance(): Promise<ccxt.Balances> {
+  public getExchange(): string {
+    return this.exchangeId
+  }
+
+  public async getBalance(): Promise<Balances> {
     return await this.exchange.fetchBalance()
   }
 
-  public async getTicker(symbol: string): Promise<ccxt.Ticker> {
+  public async getTicker(symbol: string): Promise<Ticker> {
     return await this.exchange.fetchTicker(symbol)
   }
 
   public async getPosition(symbol: string): Promise<any> {
     if (this.exchangeId === 'binanceusdm') {
       return await this.exchange.fetchPositionsRisk([symbol])
-    } else if (this.exchangeId === 'bybit') {
+    } else {
       return await this.exchange.fetchPosition(symbol)
     }
   }
 
   public async getLeverage(symbol: string): Promise<number> {
     let leverage = 1
-    if (this.exchangeId === 'binanceusdm') {
-      leverage = (
-        await this.exchange.fapiPrivateGetPositionRisk({
-          symbol: symbol.replace('/', ''),
-        })
-      )?.[0]?.leverage
-    } else if (this.exchangeId === 'bybit') {
-      leverage = (await this.exchange.fetchPosition(symbol)).leverage
-    }
+    // if (this.exchangeId === 'binanceusdm') {
+    //   leverage = (
+    //     await this.exchange.({
+    //       symbol: symbol.replace('/', ''),
+    //     })
+    //   )?.[0]?.leverage
+    // } else if (this.exchangeId === 'bybit') {
+    //   leverage = (await this.exchange.fetchPosition(symbol)).leverage
+    // }
     return leverage
   }
 
@@ -89,7 +97,7 @@ export class TradingAccount {
     side: Side,
     size: number,
     params?: any
-  ): Promise<ccxt.Order> {
+  ): Promise<Order> {
     const finalSide = side === Side.Long ? 'buy' : 'sell'
     return await this.exchange.createMarketOrder(
       symbol,
@@ -106,7 +114,7 @@ export class TradingAccount {
     size: number,
     price: number,
     params?: any
-  ): Promise<ccxt.Order> {
+  ): Promise<Order> {
     const finalSide = side === Side.Long ? 'buy' : 'sell'
     return await this.exchange.createLimitOrder(
       symbol,
@@ -124,7 +132,7 @@ export class TradingAccount {
     size: number,
     price: number,
     params?: any
-  ): Promise<ccxt.Order> {
+  ): Promise<Order> {
     const finalSide = side === Side.Long ? 'buy' : 'sell'
     return await this.exchange.createOrder(
       symbol,
@@ -141,9 +149,15 @@ export class TradingAccount {
     side: Side,
     size: number,
     price: number
-  ): Promise<ccxt.Order> {
+  ): Promise<Order> {
     const finalSide = side === Side.Long ? 'buy' : 'sell'
-    return await this.exchange.createStopOrder(symbol, finalSide, size, price)
+    return await this.exchange.createStopOrder(
+      symbol,
+      'market',
+      finalSide,
+      size,
+      price
+    )
   }
 
   public priceToPrecision(symbol: string, price: number): number {
@@ -165,9 +179,9 @@ export class TradingAccount {
 
     if (size.includes('%')) {
       let balance = 0
-      if (this.exchangeId === 'bybit')
-        balance = (await this.getBalance()).USDT.free
-      else if (this.exchangeId === 'binanceusdm')
+      // if (this.exchangeId === 'bybit')
+      //   balance = (await this.getBalance()).USDT.free
+      if (this.exchangeId === 'binanceusdm' || this.exchangeId === 'binance')
         balance = await (await this.getBalance()).info.availableBalance
       orderSize = getRelativeOrderSize(balance, size)
     }

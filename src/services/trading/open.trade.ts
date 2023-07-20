@@ -23,7 +23,10 @@ export const openTrade = async (trade: Trade) => {
     const ticker: Ticker = await account.getTicker(symbol)
     const { tokens } = await account.getOpenOrderOptions(trade, ticker)
 
-    let currentLeverage = await account.getLeverage(symbol)
+    let currentLeverage = 1
+    if (account.getExchange() !== 'binance') {
+      currentLeverage = await account.getLeverage(symbol)
+    }
     if (leverage && leverage !== currentLeverage) {
       await account.changeLeverage(symbol, leverage)
       currentLeverage = leverage

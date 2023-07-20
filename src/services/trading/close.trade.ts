@@ -1,5 +1,4 @@
-import { Ticker } from 'ccxt'
-import { Side, Trade } from '../../entities/trade.entities'
+import { Trade } from '../../entities/trade.entities'
 import { TradingAccount } from './trading.account'
 
 export const closeTrade = async (trade: Trade): Promise<void> => {

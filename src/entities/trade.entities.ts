@@ -23,15 +23,6 @@ export type TakeProfit = {
   price: string
   size: string
 }
-
-// {
-//   "account": "main",
-//   "direction": "long",
-//   "symbol": "SOL/USDT",
-//   "size": "5%",
-//   "stopLoss": "0.04"
-// }
-
 export class Trade {
   @IsString()
   @IsOptional()
