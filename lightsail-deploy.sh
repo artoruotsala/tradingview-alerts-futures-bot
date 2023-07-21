@@ -18,7 +18,7 @@ git clone https://github.com/artoruotsala/tradingview-alerts-futures-bot.git /sr
 
 # Checkout the specific branch
 cd /srv/docker
-git checkout test/binance-spot
+git checkout -b test/binance-spot origin/test/binance-spot
 
 mv /srv/.env /srv/docker/.env
 

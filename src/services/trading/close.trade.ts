@@ -8,28 +8,13 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
 
   try {
     if (!price) {
-      const { tokens, side, contracts } = await account.getCloseOrderOptions(
-        trade
-      )
+      const { tokens, side } = await account.getCloseOrderOptions(trade)
 
-      await account.createMarketOrder(symbol, side, tokens, {
-        reduceOnly: true,
-      })
-
-      if (contracts === tokens) {
-        await account.cancelAllOrders(symbol)
-      }
+      await account.createMarketOrder(symbol, side, tokens)
     } else if (price) {
-      const { tokens, side, contracts } = await account.getCloseOrderOptions(
-        trade
-      )
+      const { tokens, side } = await account.getCloseOrderOptions(trade)
 
-      await account.createLimitOrder(symbol, side, tokens, parseFloat(price), {
-        reduceOnly: true,
-      })
-      if (contracts === tokens) {
-        await account.cancelAllOrders(symbol)
-      }
+      await account.createLimitOrder(symbol, side, tokens, parseFloat(price))
     }
   } catch (error) {
     throw error

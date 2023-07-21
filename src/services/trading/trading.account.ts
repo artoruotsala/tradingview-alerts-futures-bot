@@ -59,11 +59,9 @@ export class TradingAccount {
   }
 
   public async getPosition(symbol: string): Promise<any> {
-    if (this.exchangeId === 'binanceusdm') {
-      return await this.exchange.fetchPositionsRisk([symbol])
-    } else {
-      return await this.exchange.fetchPosition(symbol)
-    }
+    const balance = await this.exchange.fetchBalance()
+    const firstSymbol = symbol.split('/')[0]
+    return balance.free[firstSymbol]
   }
 
   public async getLeverage(symbol: string): Promise<number> {
@@ -99,6 +97,8 @@ export class TradingAccount {
     params?: any
   ): Promise<Order> {
     const finalSide = side === Side.Long ? 'buy' : 'sell'
+    console.log(finalSide)
+    console.log(symbol)
     return await this.exchange.createMarketOrder(
       symbol,
       finalSide,
@@ -182,7 +182,7 @@ export class TradingAccount {
       // if (this.exchangeId === 'bybit')
       //   balance = (await this.getBalance()).USDT.free
       if (this.exchangeId === 'binanceusdm' || this.exchangeId === 'binance')
-        balance = await (await this.getBalance()).info.availableBalance
+        balance = (await this.getBalance()).USDT.free as number
       orderSize = getRelativeOrderSize(balance, size)
     }
 
@@ -199,12 +199,9 @@ export class TradingAccount {
     let orderSize = parseFloat(size)
 
     const position = await this.getPosition(symbol)
-    const fPosition =
-      this.exchangeId === 'binanceusdm' ? position?.[0] : position
 
-    const contracts = fPosition?.contracts
-    const side = fPosition?.side
-    const leverage = fPosition?.leverage
+    const contracts = position
+    const leverage = 1
 
     if (!contracts) {
       throw new Error('No open position')
@@ -223,7 +220,7 @@ export class TradingAccount {
     return {
       tokens: this.amountToPrecision(symbol, tokens),
       contracts,
-      side: side === 'long' ? Side.Short : Side.Long,
+      side: Side.Short,
     }
   }
 }

@@ -23,32 +23,23 @@ export const openTrade = async (trade: Trade) => {
     const ticker: Ticker = await account.getTicker(symbol)
     const { tokens } = await account.getOpenOrderOptions(trade, ticker)
 
-    let currentLeverage = 1
-    if (account.getExchange() !== 'binance') {
-      currentLeverage = await account.getLeverage(symbol)
-    }
-    if (leverage && leverage !== currentLeverage) {
-      await account.changeLeverage(symbol, leverage)
-      currentLeverage = leverage
-    }
+    const balances = await account.getBalance()
+    console.log(balances)
 
     let order
 
     if (!price) {
-      order = await account.createMarketOrder(
-        symbol,
-        direction,
-        tokens * currentLeverage
-      )
+      order = await account.createMarketOrder(symbol, direction, tokens)
     } else {
       const orderPrice = (await account.priceToPrecision(
         symbol,
         parseFloat(price)
       )) as number
+
       order = await account.createLimitOrder(
         symbol,
         direction,
-        tokens * currentLeverage,
+        tokens,
         orderPrice
       )
     }
@@ -68,7 +59,7 @@ export const openTrade = async (trade: Trade) => {
         symbol,
         direction === Side.Long ? Side.Short : Side.Long,
         'STOP_MARKET',
-        tokens * currentLeverage,
+        tokens,
         undefined,
         {
           stopPrice,
@@ -91,7 +82,7 @@ export const openTrade = async (trade: Trade) => {
           symbol,
           direction === Side.Long ? Side.Short : Side.Long,
           'TAKE_PROFIT',
-          account.amountToPrecision(symbol, tokens * currentLeverage * tp.size),
+          account.amountToPrecision(symbol, tokens * tp.size),
           tpPrice,
           {
             stopPrice: tpPrice,
@@ -103,10 +94,10 @@ export const openTrade = async (trade: Trade) => {
 
     direction === Side.Long
       ? info(
-          `Opened long position for ${symbol} at ${ticker.last} with size ${size} and leverage ${currentLeverage}`
+          `Opened long position for ${symbol} at ${ticker.last} with size ${size}`
         )
       : info(
-          `Opened short position for ${symbol} at ${ticker.last} with size ${size} and leverage ${currentLeverage}`
+          `Opened short position for ${symbol} at ${ticker.last} with size ${size}`
         )
 
     return order
