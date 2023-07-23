@@ -29,15 +29,26 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
           }${leverage ? `| leverage: ${leverage}` : ''} success!`,
         })
       )
-    } else if (direction === Side.Close || direction === Side.Sell) {
+    } else if (
+      direction === Side.Close ||
+      direction === Side.Sell ||
+      direction === Side.Exit
+    ) {
       await closeTrade(req.body)
+
       res.write(
         JSON.stringify({
-          message: `Trade ${direction} | ${symbol} | ${
-            size.includes('%') ? `${size}` : `${size}$`
-          } success!`,
+          message: `Trade exited | ${symbol} | success!`,
         })
       )
+
+      // res.write(
+      //   JSON.stringify({
+      //     message: `Trade ${direction} | ${symbol} | ${
+      //       size.includes('%') ? `${size}` : `${size}$`
+      //     } success!`,
+      //   })
+      // )
     } else {
       res.write(
         JSON.stringify({

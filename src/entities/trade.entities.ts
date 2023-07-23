@@ -17,7 +17,7 @@ export enum Side {
   Close = 'close',
   Buy = 'buy',
   Sell = 'sell',
-  CloseSpot = 'exit',
+  Exit = 'exit',
 }
 
 export const SIDES = [
@@ -26,7 +26,7 @@ export const SIDES = [
   Side.Short,
   Side.Buy,
   Side.Sell,
-  Side.CloseSpot,
+  Side.Exit,
 ]
 
 export type TakeProfit = {

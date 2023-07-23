@@ -190,6 +190,7 @@ export class TradingAccount {
     side: Side.Sell
   }> {
     const { size, symbol } = trade
+    let finalSize = '100%' // hardcoded for now, for current strategy
     let orderSize = parseFloat(size)
 
     const position = await this.getPosition(symbol)
@@ -202,10 +203,10 @@ export class TradingAccount {
     }
 
     let tokens = 0
-    if (size.includes('%')) {
-      if (size === '100%') {
+    if (finalSize.includes('%')) {
+      if (finalSize === '100%') {
         tokens = contracts
-      } else tokens = getRelativeOrderSize(contracts, size)
+      } else tokens = getRelativeOrderSize(contracts, finalSize)
     } else {
       const ticker: Ticker = await this.getTicker(symbol)
       tokens = getTokensAmount(symbol, ticker.last, orderSize * leverage)
