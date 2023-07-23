@@ -15,9 +15,19 @@ export enum Side {
   Long = 'long',
   Short = 'short',
   Close = 'close',
+  Buy = 'buy',
+  Sell = 'sell',
+  CloseSpot = 'exit',
 }
 
-export const SIDES = [Side.Close, Side.Long, Side.Short]
+export const SIDES = [
+  Side.Close,
+  Side.Long,
+  Side.Short,
+  Side.Buy,
+  Side.Sell,
+  Side.CloseSpot,
+]
 
 export type TakeProfit = {
   price: string

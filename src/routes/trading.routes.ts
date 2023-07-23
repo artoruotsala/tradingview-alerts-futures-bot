@@ -16,7 +16,11 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
       throw new Error('Trading is disabled')
     }
 
-    if (direction === Side.Long || direction === Side.Short) {
+    if (
+      direction === Side.Long ||
+      direction === Side.Short ||
+      direction === Side.Buy
+    ) {
       await openTrade(req.body)
       res.write(
         JSON.stringify({
@@ -25,7 +29,7 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
           }${leverage ? `| leverage: ${leverage}` : ''} success!`,
         })
       )
-    } else if (direction === Side.Close) {
+    } else if (direction === Side.Close || direction === Side.Sell) {
       await closeTrade(req.body)
       res.write(
         JSON.stringify({

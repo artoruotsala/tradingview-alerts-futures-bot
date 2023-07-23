@@ -96,11 +96,9 @@ export class TradingAccount {
     size: number,
     params?: any
   ): Promise<Order> {
-    const finalSide = side === Side.Long ? 'buy' : 'sell'
-
     return await this.exchange.createMarketOrder(
       symbol,
-      finalSide,
+      side,
       size,
       undefined,
       params
@@ -114,10 +112,9 @@ export class TradingAccount {
     price: number,
     params?: any
   ): Promise<Order> {
-    const finalSide = side === Side.Long ? 'buy' : 'sell'
     return await this.exchange.createLimitOrder(
       symbol,
-      finalSide,
+      side,
       size,
       price,
       params
@@ -132,11 +129,10 @@ export class TradingAccount {
     price: number,
     params?: any
   ): Promise<Order> {
-    const finalSide = side === Side.Long ? 'buy' : 'sell'
     return await this.exchange.createOrder(
       symbol,
       type,
-      finalSide,
+      side,
       size,
       price,
       params
@@ -149,11 +145,10 @@ export class TradingAccount {
     size: number,
     price: number
   ): Promise<Order> {
-    const finalSide = side === Side.Long ? 'buy' : 'sell'
     return await this.exchange.createStopOrder(
       symbol,
       'market',
-      finalSide,
+      side,
       size,
       price
     )
@@ -192,7 +187,7 @@ export class TradingAccount {
   public async getCloseOrderOptions(trade: Trade): Promise<{
     tokens: number
     contracts: number
-    side: Side.Short | Side.Long
+    side: Side.Sell
   }> {
     const { size, symbol } = trade
     let orderSize = parseFloat(size)
@@ -219,7 +214,7 @@ export class TradingAccount {
     return {
       tokens: this.amountToPrecision(symbol, tokens),
       contracts,
-      side: Side.Short,
+      side: Side.Sell,
     }
   }
 }

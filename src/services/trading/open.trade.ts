@@ -90,13 +90,9 @@ export const openTrade = async (trade: Trade) => {
     //   }
     // }
 
-    direction === Side.Long
-      ? info(
-          `Opened long position for ${symbol} at ${ticker.last} with size ${size}`
-        )
-      : info(
-          `Opened short position for ${symbol} at ${ticker.last} with size ${size}`
-        )
+    info(
+      `Opened ${direction} position for ${symbol} at ${ticker.last} with size ${size}`
+    )
 
     return order
   } catch (error) {
