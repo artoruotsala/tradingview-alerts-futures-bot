@@ -97,8 +97,7 @@ export class TradingAccount {
     params?: any
   ): Promise<Order> {
     const finalSide = side === Side.Long ? 'buy' : 'sell'
-    console.log(finalSide)
-    console.log(symbol)
+
     return await this.exchange.createMarketOrder(
       symbol,
       finalSide,
