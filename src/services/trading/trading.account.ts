@@ -3,6 +3,7 @@ import { Side, Trade } from '../../entities/trade.entities'
 import { ExchangeId } from '../../constants/exchanges.id'
 import { getRelativeOrderSize } from './helpers/getRelativeOrderSize'
 import { getTokensAmount } from './helpers/getTokensAmount'
+import { TradingExecutor } from './trading.executor'
 
 export class TradingAccount {
   private static instance: TradingAccount
@@ -169,6 +170,7 @@ export class TradingAccount {
     ticker: Ticker
   ): Promise<{ tokens: number }> {
     const { size, margin, symbol } = trade
+
     let orderSize = parseFloat(size) * (margin ? parseFloat(margin) : 1)
 
     if (size.includes('%')) {
@@ -177,7 +179,21 @@ export class TradingAccount {
       //   balance = (await this.getBalance()).USDT.free
       if (this.exchangeId === 'binanceusdm' || this.exchangeId === 'binance')
         balance = (await this.getBalance()).USDT.free as number
-      orderSize = getRelativeOrderSize(balance, size)
+
+      if (TradingExecutor.TradeCount == 0) {
+        orderSize = getRelativeOrderSize(balance, '33%')
+        console.log('33% order size')
+      } else if (TradingExecutor.TradeCount == 1) {
+        orderSize = getRelativeOrderSize(balance, '45%')
+        console.log('45% order size')
+      } else if (TradingExecutor.TradeCount == 2) {
+        orderSize = getRelativeOrderSize(balance, '70%')
+        console.log('70% order size')
+      } else {
+        orderSize = getRelativeOrderSize(balance, '100%')
+        console.log('100% order size')
+      }
+      // orderSize = getRelativeOrderSize(balance, size)
     }
 
     const tokens = getTokensAmount(symbol, ticker.last, orderSize)

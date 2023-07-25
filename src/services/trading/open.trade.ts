@@ -4,6 +4,7 @@ import { info } from '../console.logger'
 import { calcStopLoss } from './helpers/calcStopLoss'
 import { calcTakeProfits } from './helpers/calcTakeProfits'
 import { TradingAccount } from './trading.account'
+import { TradingExecutor } from './trading.executor'
 
 export const openTrade = async (trade: Trade) => {
   const account = TradingAccount.getInstance()
@@ -89,9 +90,10 @@ export const openTrade = async (trade: Trade) => {
     //     )
     //   }
     // }
+    TradingExecutor.addTrade()
 
     info(
-      `Opened ${direction} position for ${symbol} at ${ticker.last} with size ${size}`
+      `Opened ${direction} position for ${symbol} at ${ticker.last} : Trade Count ${TradingExecutor.TradeCount}`
     )
 
     return order
