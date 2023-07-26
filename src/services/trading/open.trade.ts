@@ -42,59 +42,12 @@ export const openTrade = async (trade: Trade) => {
       )
     }
 
-    //! probably not working
-    // if (stopLoss && order.price) {
-    //   const stopPriceFinal = calcStopLoss(
-    //     order.price,
-    //     stopLoss,
-    //     direction as Side.Long | Side.Close
-    //   )
-    //   const stopPrice = account.priceToPrecision(
-    //     symbol,
-    //     stopPriceFinal
-    //   ) as number
-
-    //   await account.createOrder(
-    //     symbol,
-    //     direction === Side.Long ? Side.Short : Side.Long,
-    //     'STOP_MARKET',
-    //     tokens,
-    //     undefined,
-    //     {
-    //       stopPrice,
-    //       reduceOnly: true,
-    //     }
-    //   )
-    // }
-
-    // if (takeProfit && order.price) {
-    //   const takeProfits = calcTakeProfits(
-    //     order.price,
-    //     takeProfit,
-    //     takeProfitLevels || [],
-    //     direction === Side.Long ? 'buy' : 'sell'
-    //   )
-
-    //   for (const tp of takeProfits) {
-    //     const tpPrice = account.priceToPrecision(symbol, tp.price) as number
-    //     await account.createOrder(
-    //       symbol,
-    //       direction === Side.Long ? Side.Short : Side.Long,
-    //       'TAKE_PROFIT',
-    //       account.amountToPrecision(symbol, tokens * tp.size),
-    //       tpPrice,
-    //       {
-    //         stopPrice: tpPrice,
-    //         reduceOnly: true,
-    //       }
-    //     )
-    //   }
-    // }
     TradingExecutor.addTrade()
 
-    info(
-      `Opened ${direction} position for ${symbol} at ${ticker.last} : Trade Count ${TradingExecutor.TradeCount}`
-    )
+    info(order)
+    // info(
+    //   `Opened ${direction} position for ${symbol} at ${ticker.last} : Trade Count ${TradingExecutor.TradeCount}`
+    // )
 
     return order
   } catch (error) {
