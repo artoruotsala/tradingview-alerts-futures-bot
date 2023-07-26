@@ -184,14 +184,11 @@ export class TradingAccount {
         orderSize = getRelativeOrderSize(balance, '33%')
         console.log('33% order size')
       } else if (TradingExecutor.TradeCount == 1) {
-        orderSize = getRelativeOrderSize(balance, '45%')
-        console.log('45% order size')
-      } else if (TradingExecutor.TradeCount == 2) {
-        orderSize = getRelativeOrderSize(balance, '70%')
-        console.log('70% order size')
+        orderSize = getRelativeOrderSize(balance, '50%')
+        console.log('50% order size')
       } else {
-        orderSize = getRelativeOrderSize(balance, '100%')
-        console.log('100% order size')
+        orderSize = getRelativeOrderSize(balance, '98%')
+        console.log('98% order size')
       }
       // orderSize = getRelativeOrderSize(balance, size)
     }

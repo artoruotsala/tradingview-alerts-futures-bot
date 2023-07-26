@@ -1,4 +1,5 @@
 import { Ticker } from 'ccxt'
+import { chatId, telegramBot } from '../../server'
 import { Side, Trade } from '../../entities/trade.entities'
 import { info } from '../console.logger'
 import { calcStopLoss } from './helpers/calcStopLoss'
@@ -41,13 +42,17 @@ export const openTrade = async (trade: Trade) => {
         orderPrice
       )
     }
+    if (order.status === 'closed') {
+      TradingExecutor.addTrade()
+      telegramBot.sendMessage(
+        chatId,
+        `Buy for ${symbol} at ${ticker.last} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
+      )
+    }
 
-    TradingExecutor.addTrade()
-
-    info(order)
-    // info(
-    //   `Opened ${direction} position for ${symbol} at ${ticker.last} : Trade Count ${TradingExecutor.TradeCount}`
-    // )
+    info(
+      `Buy for ${symbol} at ${ticker.last} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
+    )
 
     return order
   } catch (error) {

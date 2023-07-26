@@ -1,3 +1,4 @@
+import { chatId, telegramBot } from '../../server'
 import { Trade } from '../../entities/trade.entities'
 import { info } from '../console.logger'
 import { TradingAccount } from './trading.account'
@@ -8,20 +9,33 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
 
   const { symbol, price } = trade
 
+  let order
+
   try {
     if (!price) {
       const { tokens, side } = await account.getCloseOrderOptions(trade)
 
-      await account.createMarketOrder(symbol, side, tokens)
+      order = await account.createMarketOrder(symbol, side, tokens)
     } else if (price) {
       const { tokens, side } = await account.getCloseOrderOptions(trade)
 
-      await account.createLimitOrder(symbol, side, tokens, parseFloat(price))
+      order = await account.createLimitOrder(
+        symbol,
+        side,
+        tokens,
+        parseFloat(price)
+      )
     }
-    TradingExecutor.removeTrade()
+    if (order.status === 'closed') {
+      TradingExecutor.removeTrade()
+      telegramBot.sendMessage(
+        chatId,
+        `Position for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
+      )
+    }
 
     info(
-      `Closed position for ${symbol} : Trade Count ${TradingExecutor.TradeCount}`
+      `Position for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
     )
   } catch (error) {
     throw error
