@@ -7,7 +7,14 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
   const keyboards = {
     main_menu: {
       reply_markup: {
-        keyboard: [[{ text: '/trades on' }, { text: '/trades off' }]],
+        keyboard: [
+          [
+            { text: '/trades on' },
+            { text: '/trades off' },
+            { text: '/tradecount add' },
+            { text: '/tradecount remove' },
+          ],
+        ],
         resize_keyboard: true,
       },
     },
@@ -25,5 +32,20 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
       TradingExecutor.setTrades(true)
       telegramBot.sendMessage(chatId, 'Trades enabled')
     }
+  })
+
+  telegramBot.onText(/\/tradecount (.+)/, async (msg, match) => {
+    const resp = match?.[1]
+
+    if (resp && resp === 'add') {
+      TradingExecutor.addTrade()
+    } else if (resp && resp === 'remove') {
+      TradingExecutor.removeTrade()
+    }
+
+    telegramBot.sendMessage(
+      chatId,
+      `Trades count: ${TradingExecutor.TradeCount}`
+    )
   })
 }
