@@ -25,34 +25,34 @@ export const openTrade = async (trade: Trade) => {
     const ticker: Ticker = await account.getTicker(symbol)
     const { tokens } = await account.getOpenOrderOptions(trade, ticker)
 
-    let order
+    let order = await account.createMarketOrder(symbol, direction, tokens)
 
-    if (!price) {
-      order = await account.createMarketOrder(symbol, direction, tokens)
-    } else {
-      const orderPrice = (await account.priceToPrecision(
-        symbol,
-        parseFloat(price)
-      )) as number
+    // else {
+    //   const orderPrice = (await account.priceToPrecision(
+    //     symbol,
+    //     parseFloat(price)
+    //   )) as number
 
-      order = await account.createLimitOrder(
-        symbol,
-        direction,
-        tokens,
-        orderPrice
-      )
-    }
-    if (order.status === 'closed') {
+    //   order = await account.createLimitOrder(
+    //     symbol,
+    //     direction,
+    //     tokens,
+    //     orderPrice
+    //   )
+    // }
+    if (order.status === 'closed' || order.status === 'open') {
       TradingExecutor.addTrade()
       telegramBot.sendMessage(
         chatId,
         `Buy for ${symbol} at ${ticker.last} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
       )
-    }
 
-    info(
-      `Buy for ${symbol} at ${ticker.last} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
-    )
+      info(
+        `Buy for ${symbol} at ${ticker.last} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
+      )
+    } else {
+      telegramBot.sendMessage(chatId, `Buy for ${symbol} failed`)
+    }
 
     return order
   } catch (error) {

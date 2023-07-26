@@ -26,17 +26,21 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
         parseFloat(price)
       )
     }
-    if (order.status === 'closed') {
+
+    if (order.status === 'closed' || order.status === 'open') {
       TradingExecutor.removeTrade()
+
       telegramBot.sendMessage(
         chatId,
-        `Position for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
+        `Sell for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
       )
-    }
 
-    info(
-      `Position for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
-    )
+      info(
+        `Sell for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
+      )
+    } else {
+      telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
+    }
   } catch (error) {
     throw error
   }
