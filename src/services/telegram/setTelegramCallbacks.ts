@@ -8,12 +8,9 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
     main_menu: {
       reply_markup: {
         keyboard: [
-          [
-            { text: '/trades on' },
-            { text: '/trades off' },
-            { text: '/tradecount add' },
-            { text: '/tradecount remove' },
-          ],
+          [{ text: '/trades on' }, { text: '/trades off' }],
+          [{ text: '/tradecount add' }, { text: '/tradecount remove' }],
+          [{ text: '/maxtrades add' }, { text: '/maxtrades remove' }],
         ],
         resize_keyboard: true,
       },
@@ -45,7 +42,22 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
 
     telegramBot.sendMessage(
       chatId,
-      `Trades count: ${TradingExecutor.TradeCount}`
+      `Max trades count: ${TradingExecutor.MaxTrades}, current trades count: ${TradingExecutor.TradeCount}`
+    )
+  })
+
+  telegramBot.onText(/\/maxtrades (.+)/, async (msg, match) => {
+    const resp = match?.[1]
+
+    if (resp && resp === 'add') {
+      TradingExecutor.addMaxTrade()
+    } else if (resp && resp === 'remove') {
+      TradingExecutor.removeMaxTrade()
+    }
+
+    telegramBot.sendMessage(
+      chatId,
+      `Max trades count: ${TradingExecutor.MaxTrades}, current trades count: ${TradingExecutor.TradeCount}`
     )
   })
 }

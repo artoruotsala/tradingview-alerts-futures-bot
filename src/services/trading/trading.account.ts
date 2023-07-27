@@ -180,16 +180,12 @@ export class TradingAccount {
       if (this.exchangeId === 'binanceusdm' || this.exchangeId === 'binance')
         balance = (await this.getBalance()).USDT.free as number
 
-      if (TradingExecutor.TradeCount == 0) {
-        orderSize = getRelativeOrderSize(balance, '33%')
-        console.log('33% order size')
-      } else if (TradingExecutor.TradeCount == 1) {
-        orderSize = getRelativeOrderSize(balance, '50%')
-        console.log('50% order size')
-      } else {
-        orderSize = getRelativeOrderSize(balance, '98%')
-        console.log('98% order size')
-      }
+      let maxTrades = TradingExecutor.MaxTrades
+      let tradeCount = TradingExecutor.TradeCount
+      let remainingTrades = maxTrades - tradeCount
+      const cappedSize = Math.min(100 / remainingTrades, 99)
+      orderSize = getRelativeOrderSize(balance, `${cappedSize}%`)
+
       // orderSize = getRelativeOrderSize(balance, size)
     }
 

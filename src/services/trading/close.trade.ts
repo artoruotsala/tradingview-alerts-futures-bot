@@ -19,12 +19,12 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
     } else if (price) {
       const { tokens, side } = await account.getCloseOrderOptions(trade)
 
-      order = await account.createLimitOrder(
+      const orderPrice = (await account.priceToPrecision(
         symbol,
-        side,
-        tokens,
-        parseFloat(price)
-      )
+        parseFloat(price) * 0.99
+      )) as number
+
+      order = await account.createLimitOrder(symbol, side, tokens, orderPrice)
     }
 
     if (order.status === 'closed' || order.status === 'open') {

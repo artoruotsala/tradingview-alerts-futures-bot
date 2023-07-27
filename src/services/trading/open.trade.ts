@@ -22,6 +22,11 @@ export const openTrade = async (trade: Trade) => {
       takeProfitLevels,
     } = trade
 
+    if (TradingExecutor.TradeCount >= TradingExecutor.MaxTrades) {
+      telegramBot.sendMessage(chatId, 'Max trades reached')
+      return
+    }
+
     const ticker: Ticker = await account.getTicker(symbol)
     const { tokens } = await account.getOpenOrderOptions(trade, ticker)
 
