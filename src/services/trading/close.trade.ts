@@ -28,7 +28,7 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
     }
 
     if (order.status === 'closed' || order.status === 'open') {
-      TradingExecutor.removeTrade()
+      if (symbol !== 'BTC/TUSD') TradingExecutor.removeTrade()
 
       telegramBot.sendMessage(
         chatId,

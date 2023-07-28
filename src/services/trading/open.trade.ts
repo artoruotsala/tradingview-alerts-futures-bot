@@ -28,15 +28,12 @@ export const openTrade = async (trade: Trade) => {
       let order = await account.createMarketOrder(symbol, direction, tokens)
 
       if (order.status === 'closed' || order.status === 'open') {
-        TradingExecutor.addTrade()
         telegramBot.sendMessage(
           chatId,
-          `Buy for ${symbol} at ${ticker.last} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
+          `Buy for ${symbol} at ${ticker.last} is ${order.status}`
         )
 
-        info(
-          `Buy for ${symbol} at ${ticker.last} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
-        )
+        info(`Buy for ${symbol} at ${ticker.last} is ${order.status}`)
       } else {
         telegramBot.sendMessage(chatId, `Buy for ${symbol} failed`)
       }
