@@ -22,6 +22,28 @@ export const openTrade = async (trade: Trade) => {
       takeProfitLevels,
     } = trade
 
+    if (symbol === 'BTC/TUSD') {
+      const ticker: Ticker = await account.getTicker(symbol)
+      const { tokens } = await account.getOpenOrderOptionsBtc(trade, ticker)
+      let order = await account.createMarketOrder(symbol, direction, tokens)
+
+      if (order.status === 'closed' || order.status === 'open') {
+        TradingExecutor.addTrade()
+        telegramBot.sendMessage(
+          chatId,
+          `Buy for ${symbol} at ${ticker.last} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
+        )
+
+        info(
+          `Buy for ${symbol} at ${ticker.last} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
+        )
+      } else {
+        telegramBot.sendMessage(chatId, `Buy for ${symbol} failed`)
+      }
+
+      return order
+    }
+
     if (TradingExecutor.TradeCount >= TradingExecutor.MaxTrades) {
       telegramBot.sendMessage(chatId, 'Max trades reached')
       return
@@ -32,19 +54,6 @@ export const openTrade = async (trade: Trade) => {
 
     let order = await account.createMarketOrder(symbol, direction, tokens)
 
-    // else {
-    //   const orderPrice = (await account.priceToPrecision(
-    //     symbol,
-    //     parseFloat(price)
-    //   )) as number
-
-    //   order = await account.createLimitOrder(
-    //     symbol,
-    //     direction,
-    //     tokens,
-    //     orderPrice
-    //   )
-    // }
     if (order.status === 'closed' || order.status === 'open') {
       TradingExecutor.addTrade()
       telegramBot.sendMessage(

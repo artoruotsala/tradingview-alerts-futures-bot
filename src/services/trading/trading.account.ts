@@ -193,6 +193,27 @@ export class TradingAccount {
     return { tokens: this.amountToPrecision(symbol, tokens) }
   }
 
+  public async getOpenOrderOptionsBtc(
+    trade: Trade,
+    ticker: Ticker
+  ): Promise<{ tokens: number }> {
+    const { size, margin, symbol } = trade
+
+    let orderSize = parseFloat(size) * (margin ? parseFloat(margin) : 1)
+
+    if (size.includes('%')) {
+      let balance = 0
+
+      if (this.exchangeId === 'binance')
+        balance = (await this.getBalance()).TUSD.free as number
+
+      orderSize = getRelativeOrderSize(balance, `99%`)
+    }
+
+    const tokens = getTokensAmount(symbol, ticker.last, orderSize)
+    return { tokens: this.amountToPrecision(symbol, tokens) }
+  }
+
   public async getCloseOrderOptions(trade: Trade): Promise<{
     tokens: number
     contracts: number

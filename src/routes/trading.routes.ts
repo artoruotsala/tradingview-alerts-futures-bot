@@ -41,14 +41,6 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
           message: `Trade exited | ${symbol} | success!`,
         })
       )
-
-      // res.write(
-      //   JSON.stringify({
-      //     message: `Trade ${direction} | ${symbol} | ${
-      //       size.includes('%') ? `${size}` : `${size}$`
-      //     } success!`,
-      //   })
-      // )
     } else {
       res.write(
         JSON.stringify({
