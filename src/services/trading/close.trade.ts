@@ -28,7 +28,14 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
     }
 
     if (order.status === 'closed' || order.status === 'open') {
-      if (symbol !== 'BTC/TUSD') TradingExecutor.removeTrade()
+      if (symbol === 'BTC/TUSD') {
+        telegramBot.sendMessage(chatId, `Sell for ${symbol} is ${order.status}`)
+
+        info(`Sell for ${symbol} is ${order.status}`)
+        return order
+      }
+
+      TradingExecutor.removeTrade()
 
       telegramBot.sendMessage(
         chatId,
@@ -41,6 +48,8 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
     } else {
       telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
     }
+
+    return order
   } catch (error) {
     throw error
   }
