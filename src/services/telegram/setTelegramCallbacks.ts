@@ -49,7 +49,7 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
       TradingExecutor.removeTradeBtc()
     }
 
-    if (resp && resp === 'addbtc') {
+    if ((resp && resp === 'addbtc') || (resp && resp === 'removebtc')) {
       telegramBot.sendMessage(
         chatId,
         `Current BTC trades count: ${TradingExecutor.BtcTradeCount}`
@@ -78,9 +78,10 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
     )
   })
 
-  telegramBot.onText(/\/profit (.+)/, async (msg, match) => {
-    const resp = match?.[1]
-    const balance = match?.[2]
+  telegramBot.onText(/\/profit (\w+)\s+(\d+)/, async (msg, match) => {
+    const chatId = msg.chat.id
+    const resp = match[1]
+    const balance = match[2]
 
     if (resp && resp === 'setstart') {
       TradingExecutor.setStartingBalance(Number(balance))
@@ -91,9 +92,9 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
       )
     } else if (resp && resp === 'get') {
       const currentBalance = await account.getBalance()
-      const profit = TradingExecutor.getProfitInPercent(
-        Number(currentBalance.info.balance)
-      )
+      const TUSD = currentBalance.TUSD.free as number
+      const USDT = currentBalance.USDT.free as number
+      const profit = TradingExecutor.getProfitInPercent(TUSD + USDT)
 
       telegramBot.sendMessage(
         chatId,
