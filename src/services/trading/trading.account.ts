@@ -1,4 +1,4 @@
-import ccxt, { Balances, Exchange, Order, Ticker } from 'ccxt'
+import ccxt, { Balances, Dictionary, Exchange, Order, Ticker } from 'ccxt'
 import { Side, Trade } from '../../entities/trade.entities'
 import { ExchangeId } from '../../constants/exchanges.id'
 import { getRelativeOrderSize } from './helpers/getRelativeOrderSize'
@@ -57,6 +57,10 @@ export class TradingAccount {
 
   public async getTicker(symbol: string): Promise<Ticker> {
     return await this.exchange.fetchTicker(symbol)
+  }
+
+  public async getTickers(symbols: string[]): Promise<Dictionary<Ticker>> {
+    return await this.exchange.fetchTickers(symbols)
   }
 
   public async getPosition(symbol: string): Promise<any> {

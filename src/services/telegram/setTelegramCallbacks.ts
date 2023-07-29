@@ -106,20 +106,24 @@ const calculateTotalBalanceInUSDT = async () => {
   try {
     const balance = await exchange.getBalance()
 
-    let totalBalanceInUSDT = 0
+    let totalBalanceInUSDT = (balance.USDT.total as number) || 0
+    const symbols = []
 
     for (const currency in balance.total) {
+      const total = balance[currency].total as number
+
+      if (total === 0 || currency === 'USDT') continue
+
+      symbols.push(`${currency}/USDT`)
+    }
+
+    const tickers = await exchange.getTickers(symbols)
+
+    for (const symbol of symbols) {
+      const currency = symbol.split('/')[0]
       const total = balance.total[currency]
-
-      if (total === 0) continue
-
-      if (currency === 'USDT') {
-        totalBalanceInUSDT += total
-      } else {
-        const symbol = `${currency}/USDT`
-        const ticker = await exchange.getTicker(symbol)
-        totalBalanceInUSDT += total * ticker.last
-      }
+      const ticker = tickers[symbol]
+      totalBalanceInUSDT += total * ticker.last
     }
 
     return totalBalanceInUSDT
