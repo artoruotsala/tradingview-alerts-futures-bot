@@ -101,32 +101,25 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
     }
   })
 }
-
 const calculateTotalBalanceInUSDT = async () => {
   const exchange = TradingAccount.getInstance()
   try {
-    // Fetch account balance
     const balance = await exchange.getBalance()
 
-    // Initialize total balance
     let totalBalanceInUSDT = 0
 
-    // Iterate over each currency in the balance
     for (const currency in balance.total) {
-      // Get the total balance for this currency
       const total = balance.total[currency]
 
-      // Skip if total is zero or currency is already USDT
-      if (total === 0 || currency === 'USDT') continue
+      if (total === 0) continue
 
-      // Construct symbol
-      const symbol = `${currency}/USDT`
-
-      // Fetch ticker data for the currency
-      const ticker = await exchange.getTicker(symbol)
-
-      // Add the balance for this currency to the total balance
-      totalBalanceInUSDT += total * ticker.last
+      if (currency === 'USDT') {
+        totalBalanceInUSDT += total
+      } else {
+        const symbol = `${currency}/USDT`
+        const ticker = await exchange.getTicker(symbol)
+        totalBalanceInUSDT += total * ticker.last
+      }
     }
 
     return totalBalanceInUSDT
