@@ -7,7 +7,7 @@ export class TradingExecutor {
   public static BtcTradeCount = 0
   public static BtcMaxTrades = 2
 
-  public static startingBalance = 0
+  public static startingBalance = 5888
 
   static setTrades(value: boolean) {
     this.Trades = value

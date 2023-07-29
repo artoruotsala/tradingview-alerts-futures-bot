@@ -96,7 +96,7 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
 
       telegramBot.sendMessage(
         chatId,
-        `Current balance: ${balance}, profit: ${profit}%`
+        `Current balance: ${balance.toFixed(2)}, profit: ${profit.toFixed(2)}%`
       )
     }
   })
