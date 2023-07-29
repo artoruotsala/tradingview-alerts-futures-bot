@@ -78,7 +78,7 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
     )
   })
 
-  telegramBot.onText(/\/profit (\w+)\s+(\d+)/, async (msg, match) => {
+  telegramBot.onText(/\/profit (\w+)(?:\s+(\d+))?/, async (msg, match) => {
     const chatId = msg.chat.id
     const resp = match?.[1]
     const balance = match?.[2]
@@ -91,16 +91,47 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
         `Starting balance set to ${TradingExecutor.startingBalance} USDT`
       )
     } else if (resp && resp === 'get') {
-      const balance = await account.getBalance()
-      const USDT = balance.USDT.total as number
-      const TUSD = balance.TUSD.total as number
-      const currentBalance = USDT + TUSD
-      const profit = TradingExecutor.getProfitInPercent(currentBalance)
+      const balance = await calculateTotalBalanceInUSDT()
+      const profit = TradingExecutor.getProfitInPercent(balance)
 
       telegramBot.sendMessage(
         chatId,
-        `Current balance: ${currentBalance}, profit: ${profit}%`
+        `Current balance: ${balance}, profit: ${profit}%`
       )
     }
   })
+}
+
+const calculateTotalBalanceInUSDT = async () => {
+  const exchange = TradingAccount.getInstance()
+  try {
+    // Fetch account balance
+    const balance = await exchange.getBalance()
+
+    // Initialize total balance
+    let totalBalanceInUSDT = 0
+
+    // Iterate over each currency in the balance
+    for (const currency in balance.total) {
+      // Get the total balance for this currency
+      const total = balance.total[currency]
+
+      // Skip if total is zero or currency is already USDT
+      if (total === 0 || currency === 'USDT') continue
+
+      // Construct symbol
+      const symbol = `${currency}/USDT`
+
+      // Fetch ticker data for the currency
+      const ticker = await exchange.getTicker(symbol)
+
+      // Add the balance for this currency to the total balance
+      totalBalanceInUSDT += total * ticker.last
+    }
+
+    return totalBalanceInUSDT
+  } catch (error) {
+    console.error(error)
+    return 0
+  }
 }
