@@ -17,21 +17,38 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
 
       order = await account.createMarketOrder(symbol, side, tokens)
     } else if (price) {
-      const { tokens, side } = await account.getCloseOrderOptions(trade)
+      if (symbol === 'BTC/TUSD') {
+        const { tokens, side } = await account.getCloseOrderOptionsBtc(trade)
 
-      const orderPrice = (await account.priceToPrecision(
-        symbol,
-        parseFloat(price) * 0.995
-      )) as number
+        const orderPrice = (await account.priceToPrecision(
+          symbol,
+          parseFloat(price) * 0.995
+        )) as number
 
-      order = await account.createLimitOrder(symbol, side, tokens, orderPrice)
+        order = await account.createLimitOrder(symbol, side, tokens, orderPrice)
+      } else {
+        const { tokens, side } = await account.getCloseOrderOptions(trade)
+
+        const orderPrice = (await account.priceToPrecision(
+          symbol,
+          parseFloat(price) * 0.995
+        )) as number
+
+        order = await account.createLimitOrder(symbol, side, tokens, orderPrice)
+      }
     }
 
     if (order.status === 'closed' || order.status === 'open') {
       if (symbol === 'BTC/TUSD') {
-        telegramBot.sendMessage(chatId, `Sell for ${symbol} is ${order.status}`)
+        TradingExecutor.removeTradeBtc()
+        telegramBot.sendMessage(
+          chatId,
+          `Sell for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.BtcTradeCount}`
+        )
 
-        info(`Sell for ${symbol} is ${order.status}`)
+        info(
+          `Sell for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.BtcTradeCount}`
+        )
         return order
       }
 

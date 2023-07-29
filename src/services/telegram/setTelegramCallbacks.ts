@@ -11,6 +11,7 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
           [{ text: '/trades on' }, { text: '/trades off' }],
           [{ text: '/tradecount add' }, { text: '/tradecount remove' }],
           [{ text: '/maxtrades add' }, { text: '/maxtrades remove' }],
+          [{ text: '/tradecount addbtc' }, { text: '/tradecount removebtc' }],
         ],
         resize_keyboard: true,
       },
@@ -38,6 +39,18 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
       TradingExecutor.addTrade()
     } else if (resp && resp === 'remove') {
       TradingExecutor.removeTrade()
+    } else if (resp && resp === 'addbtc') {
+      TradingExecutor.addTradeBtc()
+    } else if (resp && resp === 'removebtc') {
+      TradingExecutor.removeTradeBtc()
+    }
+
+    if (resp && resp === 'addbtc') {
+      telegramBot.sendMessage(
+        chatId,
+        `Current BTC trades count: ${TradingExecutor.BtcTradeCount}`
+      )
+      return
     }
 
     telegramBot.sendMessage(

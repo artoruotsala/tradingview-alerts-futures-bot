@@ -207,7 +207,11 @@ export class TradingAccount {
       if (this.exchangeId === 'binance')
         balance = (await this.getBalance()).TUSD.free as number
 
-      orderSize = getRelativeOrderSize(balance, `99%`)
+      let maxTrades = TradingExecutor.BtcMaxTrades
+      let tradeCount = TradingExecutor.BtcTradeCount
+      let remainingTrades = maxTrades - tradeCount
+      const cappedSize = Math.min(100 / remainingTrades, 99)
+      orderSize = getRelativeOrderSize(balance, `${cappedSize}%`)
     }
 
     const tokens = getTokensAmount(symbol, ticker.last, orderSize)
@@ -240,6 +244,40 @@ export class TradingAccount {
     } else {
       const ticker: Ticker = await this.getTicker(symbol)
       tokens = getTokensAmount(symbol, ticker.last, orderSize * leverage)
+    }
+
+    return {
+      tokens: this.amountToPrecision(symbol, tokens),
+      contracts,
+      side: Side.Sell,
+    }
+  }
+
+  public async getCloseOrderOptionsBtc(trade: Trade): Promise<{
+    tokens: number
+    contracts: number
+    side: Side.Sell
+  }> {
+    const { size, symbol } = trade
+    let finalSize = TradingExecutor.BtcTradeCount === 1 ? '100%' : '50%'
+    let orderSize = parseFloat(size)
+
+    const position = await this.getPosition(symbol)
+
+    const contracts = position
+
+    if (!contracts) {
+      throw new Error('No open position')
+    }
+
+    let tokens = 0
+    if (finalSize.includes('%')) {
+      if (finalSize === '100%') {
+        tokens = contracts
+      } else tokens = getRelativeOrderSize(contracts, finalSize)
+    } else {
+      const ticker: Ticker = await this.getTicker(symbol)
+      tokens = getTokensAmount(symbol, ticker.last, orderSize)
     }
 
     return {

@@ -4,6 +4,9 @@ export class TradingExecutor {
   public static TradeCount = 0
   public static MaxTrades = 3
 
+  public static BtcTradeCount = 0
+  public static BtcMaxTrades = 2
+
   static setTrades(value: boolean) {
     this.Trades = value
   }
@@ -14,6 +17,14 @@ export class TradingExecutor {
 
   static removeTrade() {
     this.TradeCount = Math.max(0, this.TradeCount - 1)
+  }
+
+  static addTradeBtc() {
+    this.BtcTradeCount++
+  }
+
+  static removeTradeBtc() {
+    this.BtcTradeCount = Math.max(0, this.BtcTradeCount - 1)
   }
 
   static addMaxTrade() {
