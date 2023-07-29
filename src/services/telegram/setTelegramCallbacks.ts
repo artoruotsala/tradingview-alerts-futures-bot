@@ -80,8 +80,8 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
 
   telegramBot.onText(/\/profit (\w+)\s+(\d+)/, async (msg, match) => {
     const chatId = msg.chat.id
-    const resp = match[1]
-    const balance = match[2]
+    const resp = match?.[1]
+    const balance = match?.[2]
 
     if (resp && resp === 'setstart') {
       TradingExecutor.setStartingBalance(Number(balance))
@@ -92,8 +92,8 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
       )
     } else if (resp && resp === 'get') {
       const currentBalance = await account.getBalance()
-      const TUSD = currentBalance.TUSD.free as number
-      const USDT = currentBalance.USDT.free as number
+      const TUSD = Number(currentBalance.TUSD.free)
+      const USDT = Number(currentBalance.USDT.free)
       const profit = TradingExecutor.getProfitInPercent(TUSD + USDT)
 
       telegramBot.sendMessage(
