@@ -43,11 +43,11 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
         TradingExecutor.removeTradeBtc()
         telegramBot.sendMessage(
           chatId,
-          `Sell for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.BtcTradeCount}`
+          `Sell for ${symbol} is ${order.status} : BTC Trade Count ${TradingExecutor.BtcTradeCount}`
         )
 
         info(
-          `Sell for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.BtcTradeCount}`
+          `Sell for ${symbol} is ${order.status} : BTC Trade Count ${TradingExecutor.BtcTradeCount}`
         )
         return order
       }

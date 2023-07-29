@@ -2,10 +2,12 @@
 export class TradingExecutor {
   public static Trades = true
   public static TradeCount = 0
-  public static MaxTrades = 3
+  public static MaxTrades = 4
 
   public static BtcTradeCount = 0
   public static BtcMaxTrades = 2
+
+  public static startingBalance = 0
 
   static setTrades(value: boolean) {
     this.Trades = value
@@ -33,5 +35,13 @@ export class TradingExecutor {
 
   static removeMaxTrade() {
     this.MaxTrades = Math.max(1, this.MaxTrades - 1)
+  }
+
+  static setStartingBalance(value: number) {
+    this.startingBalance = value
+  }
+
+  static getProfitInPercent(balance: number) {
+    return ((balance - this.startingBalance) / this.startingBalance) * 100
   }
 }

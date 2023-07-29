@@ -31,11 +31,11 @@ export const openTrade = async (trade: Trade) => {
         TradingExecutor.addTradeBtc()
         telegramBot.sendMessage(
           chatId,
-          `Buy for ${symbol} at ${ticker.last} is ${order.status} : Trade Count ${TradingExecutor.BtcTradeCount}`
+          `Buy for ${symbol} at ${ticker.last} is ${order.status} : BTC Trade Count ${TradingExecutor.BtcTradeCount}`
         )
 
         info(
-          `Buy for ${symbol} at ${ticker.last} is ${order.status} : Trade Count ${TradingExecutor.BtcTradeCount}`
+          `Buy for ${symbol} at ${ticker.last} is ${order.status} : BTC Trade Count ${TradingExecutor.BtcTradeCount}`
         )
       } else {
         telegramBot.sendMessage(chatId, `Buy for ${symbol} failed`)

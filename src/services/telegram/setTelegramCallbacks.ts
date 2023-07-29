@@ -1,9 +1,12 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { chatId } from '../../server'
 import { SERVER_RUNNING } from '../logger.messages'
+import { TradingAccount } from '../trading/trading.account'
 import { TradingExecutor } from '../trading/trading.executor'
 
 export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
+  const account = TradingAccount.getInstance()
+
   const keyboards = {
     main_menu: {
       reply_markup: {
@@ -12,6 +15,7 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
           [{ text: '/tradecount add' }, { text: '/tradecount remove' }],
           [{ text: '/maxtrades add' }, { text: '/maxtrades remove' }],
           [{ text: '/tradecount addbtc' }, { text: '/tradecount removebtc' }],
+          [{ text: '/profit get' }],
         ],
         resize_keyboard: true,
       },
@@ -72,5 +76,29 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
       chatId,
       `Max trades count: ${TradingExecutor.MaxTrades}, current trades count: ${TradingExecutor.TradeCount}`
     )
+  })
+
+  telegramBot.onText(/\/profit (.+)/, async (msg, match) => {
+    const resp = match?.[1]
+    const balance = match?.[2]
+
+    if (resp && resp === 'setstart') {
+      TradingExecutor.setStartingBalance(Number(balance))
+
+      telegramBot.sendMessage(
+        chatId,
+        `Starting balance set to ${TradingExecutor.startingBalance} USDT`
+      )
+    } else if (resp && resp === 'get') {
+      const currentBalance = await account.getBalance()
+      const profit = TradingExecutor.getProfitInPercent(
+        Number(currentBalance.info.balance)
+      )
+
+      telegramBot.sendMessage(
+        chatId,
+        `Current balance: ${currentBalance.info.balance}, profit: ${profit}%`
+      )
+    }
   })
 }
