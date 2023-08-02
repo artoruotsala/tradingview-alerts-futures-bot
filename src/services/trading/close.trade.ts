@@ -22,7 +22,7 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
 
         const orderPrice = (await account.priceToPrecision(
           symbol,
-          parseFloat(price) * 0.999
+          parseFloat(price) * 0.9995
         )) as number
 
         order = await account.createLimitOrder(symbol, side, tokens, orderPrice)
