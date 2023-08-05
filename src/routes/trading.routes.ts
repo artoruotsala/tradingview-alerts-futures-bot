@@ -6,7 +6,7 @@ import { openTrade } from '../services/trading/open.trade'
 import { validateTrade } from '../validators/trade.validator'
 import { TradingExecutor } from '../services/trading/trading.executor'
 import { Order } from 'ccxt'
-import { writeOrderToFile } from 'src/services/trade.logger'
+import { writeOrderToFile } from '../services/trade.logger'
 
 const router = Router()
 
