@@ -4,27 +4,30 @@ import { TradingAccount } from './trading/trading.account'
 
 export interface OrderWithEURPrice extends Order {
   priceEUR?: number
+  currentBTCPriceEUR?: number
 }
 
 const filename = '/bot/orders.json'
 
-export async function getTUSDEURRate() {
+export async function getBTCEURRate() {
   const exchange = TradingAccount.getInstance()
 
-  const ticker = await exchange.getTicker('TUSD/EUR')
+  const ticker = await exchange.getTicker('BTC/EUR')
   return ticker.last
 }
 
 export async function writeOrderToFile(order: Order) {
-  const rate = await getTUSDEURRate()
+  const rate = await getBTCEURRate()
 
   // Convert the order price to EUR
-  const priceInEUR = order.price * rate
+  let priceInEUR = 0
+  if (order.amount && rate) priceInEUR = order.amount * rate
 
   // Create a new object with the EUR price added
   const orderWithEURPrice = {
     ...order,
     priceEUR: priceInEUR,
+    currentBTCPriceEUR: rate ? rate : 0,
   } as OrderWithEURPrice
 
   fs.readFile(filename, 'utf8', (err, data) => {
