@@ -3,13 +3,14 @@ import { Trade } from '../../entities/trade.entities'
 import { info } from '../console.logger'
 import { TradingAccount } from './trading.account'
 import { TradingExecutor } from './trading.executor'
+import { Order } from 'ccxt'
 
-export const closeTrade = async (trade: Trade): Promise<void> => {
+export const closeTrade = async (trade: Trade): Promise<Order> => {
   const account = TradingAccount.getInstance()
 
   const { symbol, price } = trade
 
-  let order
+  let order: Order
 
   try {
     if (!price) {
@@ -22,7 +23,7 @@ export const closeTrade = async (trade: Trade): Promise<void> => {
 
         const orderPrice = (await account.priceToPrecision(
           symbol,
-          parseFloat(price) * 0.9995
+          parseFloat(price)
         )) as number
 
         order = await account.createLimitOrder(symbol, side, tokens, orderPrice)

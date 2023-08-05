@@ -5,12 +5,16 @@ import { Side, Trade } from '../entities/trade.entities'
 import { openTrade } from '../services/trading/open.trade'
 import { validateTrade } from '../validators/trade.validator'
 import { TradingExecutor } from '../services/trading/trading.executor'
+import { Order } from 'ccxt'
+import { writeOrderToFile } from 'src/services/trade.logger'
 
 const router = Router()
 
 export const postTrade = async (req: Request, res: Response): Promise<void> => {
   try {
     const { direction, symbol, size, leverage }: Trade = req.body
+
+    let order: Order
 
     if (!TradingExecutor.Trades) {
       throw new Error('Trading is disabled')
@@ -21,7 +25,7 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
       direction === Side.Short ||
       direction === Side.Buy
     ) {
-      await openTrade(req.body)
+      order = await openTrade(req.body)
       res.write(
         JSON.stringify({
           message: `Trade ${direction} | ${symbol} | ${
@@ -34,7 +38,7 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
       direction === Side.Sell ||
       direction === Side.Exit
     ) {
-      await closeTrade(req.body)
+      order = await closeTrade(req.body)
 
       res.write(
         JSON.stringify({
@@ -47,6 +51,10 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
           message: `Invalid direction: ${direction}`,
         })
       )
+    }
+
+    if (order) {
+      writeOrderToFile(order)
     }
   } catch (err) {
     res.writeHead(HttpCode.INTERNAL_SERVER_ERROR)
