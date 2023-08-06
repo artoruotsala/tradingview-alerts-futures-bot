@@ -1,23 +1,33 @@
-import { Exchange, Order } from 'ccxt'
+import { Order } from 'ccxt'
 import fs from 'fs'
-import { TradingAccount } from './trading/trading.account'
+import axios from 'axios'
 
-export interface OrderWithEURPrice extends Order {
-  priceEUR?: number
-  currentBTCPriceEUR?: number
+export interface TUSDtoEUROPrice extends Order {
+  TUSD_to_EURO?: number
 }
 
 const filename = '/bot/orders.json'
 
-export async function getBTCEURRate() {
-  const exchange = TradingAccount.getInstance()
-
-  const ticker = await exchange.getTicker('BTC/EUR')
-  return ticker.last
+export async function getTUSDEURRate() {
+  try {
+    const response = await axios.get(
+      'https://api.coingecko.com/api/v3/simple/price',
+      {
+        params: {
+          ids: 'true-usd',
+          vs_currencies: 'eur',
+        },
+      }
+    )
+    return response.data['true-usd'].eur
+  } catch (error) {
+    console.error('Error fetching TUSD to EUR rate from CoinGecko:', error)
+    return null
+  }
 }
 
 export async function writeOrderToFile(order: Order) {
-  const rate = await getBTCEURRate()
+  const rate = await getTUSDEURRate()
 
   // Convert the order price to EUR
   let priceInEUR = 0
@@ -26,15 +36,14 @@ export async function writeOrderToFile(order: Order) {
   // Create a new object with the EUR price added
   const orderWithEURPrice = {
     ...order,
-    priceEUR: priceInEUR,
-    currentBTCPriceEUR: rate ? rate : 0,
-  } as OrderWithEURPrice
+    TUSD_to_EURO: rate ? rate : 0,
+  } as TUSDtoEUROPrice
 
   fs.readFile(filename, 'utf8', (err, data) => {
     if (err) {
       console.log(`Error reading file from disk: ${err}`)
     } else {
-      let orders: OrderWithEURPrice[]
+      let orders: TUSDtoEUROPrice[]
       try {
         orders = JSON.parse(data)
       } catch (err) {

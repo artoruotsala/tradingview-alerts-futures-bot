@@ -26,17 +26,12 @@ export const openTrade = async (trade: Trade) => {
     if (symbol === 'BTC/TUSD') {
       const ticker: Ticker = await account.getTicker(symbol)
       const { tokens } = await account.getOpenOrderOptionsBtc(trade, ticker)
-      const orderPrice = (await account.priceToPrecision(
-        symbol,
-        parseFloat(price) * 0.999
-      )) as number
+      // const orderPrice = (await account.priceToPrecision(
+      //   symbol,
+      //   parseFloat(price) * 0.999
+      // )) as number
 
-      let order = await account.createLimitOrder(
-        symbol,
-        Side.Buy,
-        tokens,
-        orderPrice
-      )
+      let order = await account.createMarketOrder(symbol, Side.Buy, tokens)
 
       if (order.status === 'closed') {
         TradingExecutor.addTradeBtc()
@@ -60,7 +55,7 @@ export const openTrade = async (trade: Trade) => {
           TradingExecutor.setTrades(true)
           telegramBot.sendMessage(
             chatId,
-            `Order did not fully close in time for ${symbol} - partial order!`
+            `Order did not fully close in time for ${symbol}!`
           )
         }
       } else {

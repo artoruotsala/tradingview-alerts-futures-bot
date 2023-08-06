@@ -12,6 +12,7 @@
   "author": "Arto R",
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.4.0",
     "ccxt": "^4.0.33",
     "class-transformer": "^0.5.1",
     "class-transformer-validator": "^0.9.1",
