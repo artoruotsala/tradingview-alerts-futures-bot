@@ -211,11 +211,11 @@ export class TradingAccount {
       if (this.exchangeId === 'binance')
         balance = (await this.getBalance()).TUSD.free as number
 
-      let maxTrades = TradingExecutor.BtcMaxTrades
-      let tradeCount = TradingExecutor.BtcTradeCount
-      let remainingTrades = maxTrades - tradeCount
-      const cappedSize = Math.min(100 / remainingTrades, 99)
-      orderSize = getRelativeOrderSize(balance, `99%`)
+      // let maxTrades = TradingExecutor.BtcMaxTrades
+      // let tradeCount = TradingExecutor.BtcTradeCount
+      // let remainingTrades = maxTrades - tradeCount
+      // const cappedSize = Math.min(100 / remainingTrades, 99)
+      orderSize = getRelativeOrderSize(balance, `99.9%`)
     }
 
     const tokens = getTokensAmount(symbol, ticker.last, orderSize)
