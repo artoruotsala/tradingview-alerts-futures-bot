@@ -263,7 +263,7 @@ export class TradingAccount {
     side: Side.Sell
   }> {
     const { size, symbol } = trade
-    let finalSize = TradingExecutor.BtcTradeCount === 1 ? '100%' : '50%'
+    let finalSize = '100%' // hardcoded for now, for current strategy
     let orderSize = parseFloat(size)
 
     const position = await this.getPosition(symbol)
