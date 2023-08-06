@@ -7,8 +7,8 @@ import { TradingExecutor } from './trading.executor'
 
 export class TradingAccount {
   private static instance: TradingAccount
-  private exchange: Exchange
   private exchangeId: string
+  public exchange: Exchange
 
   private constructor() {
     const paper = process.env.PAPER === 'true'

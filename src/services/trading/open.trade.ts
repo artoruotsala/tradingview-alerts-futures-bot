@@ -6,6 +6,7 @@ import { calcStopLoss } from './helpers/calcStopLoss'
 import { calcTakeProfits } from './helpers/calcTakeProfits'
 import { TradingAccount } from './trading.account'
 import { TradingExecutor } from './trading.executor'
+import { checkOrderUntilClosedOrTimeout } from './helpers/checkOrderUntilClosed'
 
 export const openTrade = async (trade: Trade) => {
   const account = TradingAccount.getInstance()
@@ -27,7 +28,7 @@ export const openTrade = async (trade: Trade) => {
       const { tokens } = await account.getOpenOrderOptionsBtc(trade, ticker)
       const orderPrice = (await account.priceToPrecision(
         symbol,
-        parseFloat(price)
+        parseFloat(price) * 0.999
       )) as number
 
       let order = await account.createLimitOrder(
@@ -37,18 +38,34 @@ export const openTrade = async (trade: Trade) => {
         orderPrice
       )
 
-      if (order.status === 'closed' || order.status === 'open') {
+      if (order.status === 'closed') {
         TradingExecutor.addTradeBtc()
         telegramBot.sendMessage(
           chatId,
-          `Buy for ${symbol} at ${ticker.last} is ${order.status} : BTC Trade Count ${TradingExecutor.BtcTradeCount}`
+          `🟢 BUY ${order.status} for ${symbol} at ${ticker.last}`
         )
 
-        info(
-          `Buy for ${symbol} at ${ticker.last} is ${order.status} : BTC Trade Count ${TradingExecutor.BtcTradeCount}`
-        )
+        info(`🟢 BUY ${order.status} for ${symbol} at ${ticker.last}`)
+      } else if (order.status === 'open') {
+        TradingExecutor.setTrades(false)
+        try {
+          const closedOrder = await checkOrderUntilClosedOrTimeout(
+            account.exchange,
+            symbol,
+            order.id
+          )
+          TradingExecutor.setTrades(true)
+          return closedOrder
+        } catch (err) {
+          TradingExecutor.setTrades(true)
+          telegramBot.sendMessage(
+            chatId,
+            `Order did not fully close in time for ${symbol} - partial order!`
+          )
+        }
       } else {
-        telegramBot.sendMessage(chatId, `Buy for ${symbol} failed`)
+        telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
+        return
       }
 
       return order
