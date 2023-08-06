@@ -25,7 +25,17 @@ export const openTrade = async (trade: Trade) => {
     if (symbol === 'BTC/TUSD') {
       const ticker: Ticker = await account.getTicker(symbol)
       const { tokens } = await account.getOpenOrderOptionsBtc(trade, ticker)
-      let order = await account.createMarketOrder(symbol, direction, tokens)
+      const orderPrice = (await account.priceToPrecision(
+        symbol,
+        parseFloat(price)
+      )) as number
+
+      let order = await account.createLimitOrder(
+        symbol,
+        Side.Buy,
+        tokens,
+        orderPrice
+      )
 
       if (order.status === 'closed' || order.status === 'open') {
         TradingExecutor.addTradeBtc()
