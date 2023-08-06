@@ -215,7 +215,7 @@ export class TradingAccount {
       // let tradeCount = TradingExecutor.BtcTradeCount
       // let remainingTrades = maxTrades - tradeCount
       // const cappedSize = Math.min(100 / remainingTrades, 99)
-      orderSize = getRelativeOrderSize(balance, `99.9%`)
+      orderSize = getRelativeOrderSize(balance, `99.8%`)
     }
 
     const tokens = getTokensAmount(symbol, ticker.last, orderSize)
