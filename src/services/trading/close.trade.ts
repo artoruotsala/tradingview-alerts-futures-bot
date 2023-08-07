@@ -31,13 +31,13 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
 
       order = await account.createLimitOrder(symbol, side, tokens, orderPrice)
 
-      telegramBot.sendMessage(chatId, `Starting to sell for ${symbol}...`)
+      await telegramBot.sendMessage(chatId, `Starting to sell for ${symbol}...`)
     }
 
     if (order.status === 'closed') {
       if (symbol === 'BTC/TUSD') {
         TradingExecutor.removeTradeBtc()
-        telegramBot.sendMessage(
+        await telegramBot.sendMessage(
           chatId,
           `🔴 SELL ${order.status} for ${symbol} at ${order.price}`
         )
@@ -65,11 +65,17 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
             symbol,
             order.id
           )
+          await telegramBot.sendMessage(
+            chatId,
+            `🔴 SELL ${closedOrder.status} for ${symbol} at ${order.price}`
+          )
+
+          info(`🔴 SELL ${closedOrder.status} for ${symbol} at ${order.price}`)
           TradingExecutor.setTrades(true)
           return closedOrder
         } catch (err) {
           TradingExecutor.setTrades(true)
-          telegramBot.sendMessage(
+          await telegramBot.sendMessage(
             chatId,
             `Order did not fully close in time for ${symbol} - close manually!`
           )
@@ -77,7 +83,7 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
         }
       }
     } else {
-      telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
+      await telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
       return
     }
 

@@ -1,4 +1,4 @@
-import { Ticker } from 'ccxt'
+import { Order, Ticker } from 'ccxt'
 import { chatId, telegramBot } from '../../server'
 import { Side, Trade } from '../../entities/trade.entities'
 import { info } from '../console.logger'
@@ -8,7 +8,7 @@ import { TradingAccount } from './trading.account'
 import { TradingExecutor } from './trading.executor'
 import { checkOrderUntilClosedOrTimeout } from './helpers/checkOrderUntilClosed'
 
-export const openTrade = async (trade: Trade) => {
+export const openTrade = async (trade: Trade): Promise<Order> => {
   const account = TradingAccount.getInstance()
 
   try {
@@ -38,11 +38,11 @@ export const openTrade = async (trade: Trade) => {
         orderPrice
       )
 
-      telegramBot.sendMessage(chatId, `Starting to buy for ${symbol}...`)
+      await telegramBot.sendMessage(chatId, `Starting to buy for ${symbol}...`)
 
       if (order.status === 'closed') {
         TradingExecutor.addTradeBtc()
-        telegramBot.sendMessage(
+        await telegramBot.sendMessage(
           chatId,
           `🟢 BUY ${order.status} for ${symbol} at ${ticker.last}`
         )
@@ -56,17 +56,23 @@ export const openTrade = async (trade: Trade) => {
             symbol,
             order.id
           )
+          await telegramBot.sendMessage(
+            chatId,
+            `🟢 BUY ${closedOrder.status} for ${symbol} at ${ticker.last}`
+          )
+
+          info(`🟢 BUY ${closedOrder.status} for ${symbol} at ${ticker.last}`)
           TradingExecutor.setTrades(true)
           return closedOrder
         } catch (err) {
           TradingExecutor.setTrades(true)
-          telegramBot.sendMessage(
+          await telegramBot.sendMessage(
             chatId,
             `Order did not fully close in time for ${symbol}!`
           )
         }
       } else {
-        telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
+        await telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
         return
       }
 
@@ -74,7 +80,7 @@ export const openTrade = async (trade: Trade) => {
     }
 
     if (TradingExecutor.TradeCount >= TradingExecutor.MaxTrades) {
-      telegramBot.sendMessage(chatId, 'Max trades reached')
+      await telegramBot.sendMessage(chatId, 'Max trades reached')
       return
     }
 
