@@ -30,6 +30,8 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
       )) as number
 
       order = await account.createLimitOrder(symbol, side, tokens, orderPrice)
+
+      telegramBot.sendMessage(chatId, `Starting to sell for ${symbol}...`)
     }
 
     if (order.status === 'closed') {

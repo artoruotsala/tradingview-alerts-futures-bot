@@ -4,7 +4,7 @@ export async function checkOrderUntilClosedOrTimeout(
   exchange: Exchange,
   symbol: string,
   orderId: string,
-  timeout = 30 * 60 * 1000,
+  timeout = 60 * 60 * 1000,
   interval = 15 * 1000
 ) {
   const startTime = Date.now()
