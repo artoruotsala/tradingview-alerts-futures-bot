@@ -10,4 +10,4 @@ services:
     expose:
       - '3000'
     volumes:
-      - /srv/orders.json:/bot/orders.json
+      - /srv/orders.db:/bot/orders.db

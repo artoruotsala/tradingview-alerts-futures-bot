@@ -1,12 +1,32 @@
 import { Order } from 'ccxt'
-import fs from 'fs'
 import axios from 'axios'
+import sqlite3 from 'sqlite3'
+import fs from 'fs'
 
 export interface TUSDtoEUROPrice extends Order {
   TUSD_to_EURO?: number
 }
 
-const filename = '/bot/orders.json'
+const db = new sqlite3.Database('/bot/orders.db', (err) => {
+  if (err) {
+    console.error(err.message)
+  }
+  console.log('Connected to the orders database.')
+})
+
+// Init tables
+// fs.readFile('./bot/init.sql', 'utf8', (err, data) => {
+//   if (err) {
+//     console.error(err.message)
+//     return
+//   }
+
+//   db.exec(data, (err) => {
+//     if (err) {
+//       console.error(err.message)
+//     }
+//   })
+// })
 
 export async function getTUSDEURRate() {
   try {
@@ -39,27 +59,38 @@ export async function writeOrderToFile(order: Order) {
     TUSD_to_EURO: rate ? rate : 0,
   } as TUSDtoEUROPrice
 
-  fs.readFile(filename, 'utf8', (err, data) => {
-    if (err) {
-      console.log(`Error reading file from disk: ${err}`)
-    } else {
-      let orders: TUSDtoEUROPrice[]
-      try {
-        orders = JSON.parse(data)
-      } catch (err) {
-        console.log(`Error parsing JSON string: ${err}`)
-        return
+  // insert into the orders table
+  db.run(
+    `INSERT INTO orders(id, clientOrderId, datetime, timestamp, lastTradeTimestamp, lastUpdateTimestamp, status, symbol, type, timeInForce, side, price, average, amount, filled, remaining, stopPrice, takeProfitPrice, stopLossPrice, cost, TUSD_to_EURO, trades, fee) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      orderWithEURPrice.id,
+      orderWithEURPrice.clientOrderId,
+      orderWithEURPrice.datetime,
+      orderWithEURPrice.timestamp,
+      orderWithEURPrice.lastTradeTimestamp,
+      orderWithEURPrice.lastUpdateTimestamp,
+      orderWithEURPrice.status,
+      orderWithEURPrice.symbol,
+      orderWithEURPrice.type,
+      orderWithEURPrice.timeInForce,
+      orderWithEURPrice.side,
+      orderWithEURPrice.price,
+      orderWithEURPrice.average,
+      orderWithEURPrice.amount,
+      orderWithEURPrice.filled,
+      orderWithEURPrice.remaining,
+      orderWithEURPrice.stopPrice,
+      orderWithEURPrice.takeProfitPrice,
+      orderWithEURPrice.stopLossPrice,
+      orderWithEURPrice.cost,
+      orderWithEURPrice.TUSD_to_EURO,
+      JSON.stringify(orderWithEURPrice.trades),
+      JSON.stringify(orderWithEURPrice.fee),
+    ],
+    (err) => {
+      if (err) {
+        console.error(err.message)
       }
-
-      // add the new order to existing orders
-      orders.push(orderWithEURPrice)
-
-      // write back to file
-      fs.writeFile(filename, JSON.stringify(orders, null, 2), (err) => {
-        if (err) {
-          console.log(`Error writing file: ${err}`)
-        }
-      })
     }
-  })
+  )
 }
