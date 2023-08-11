@@ -18,7 +18,7 @@ export async function checkOrderUntilClosedOrTimeout(
 
     if (TradingExecutor.cancelOrder) {
       TradingExecutor.cancelOrder = false
-      return order
+      break
     }
 
     if (order && order.status === 'closed') {
