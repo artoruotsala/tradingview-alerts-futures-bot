@@ -1,6 +1,8 @@
 // !if server restarts, trading will be on
 export class TradingExecutor {
   public static Trades = true
+  public static OpenTrade: 'none' | 'buy' | 'sell' = 'none'
+  public static cancelOrder = false
   public static TradeCount = 0
   public static MaxTrades = 4
 
@@ -11,6 +13,10 @@ export class TradingExecutor {
 
   static setTrades(value: boolean) {
     this.Trades = value
+  }
+
+  static setOpenTrade(value: 'none' | 'buy' | 'sell') {
+    this.OpenTrade = value
   }
 
   static addTrade() {

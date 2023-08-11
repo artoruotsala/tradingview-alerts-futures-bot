@@ -38,7 +38,7 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
         orderPrice
       )
 
-      await telegramBot.sendMessage(chatId, `Starting to buy for ${symbol}...`)
+      telegramBot.sendMessage(chatId, `Starting to buy for ${symbol}...`)
 
       if (order.status === 'closed') {
         TradingExecutor.addTradeBtc()
@@ -46,33 +46,35 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
           chatId,
           `🟢 BUY ${order.status} for ${symbol} at ${ticker.last}`
         )
-
-        info(`🟢 BUY ${order.status} for ${symbol} at ${ticker.last}`)
       } else if (order.status === 'open') {
-        TradingExecutor.setTrades(false)
         try {
           const closedOrder = await checkOrderUntilClosedOrTimeout(
             account.exchange,
             symbol,
             order.id
           )
-          await telegramBot.sendMessage(
-            chatId,
-            `🟢 BUY ${closedOrder.status} for ${symbol} at ${ticker.last}`
-          )
-
-          info(`🟢 BUY ${closedOrder.status} for ${symbol} at ${ticker.last}`)
-          TradingExecutor.setTrades(true)
+          if (closedOrder.status === 'closed') {
+            TradingExecutor.addTradeBtc()
+            telegramBot.sendMessage(
+              chatId,
+              `🟢 BUY ${closedOrder.status} for ${symbol} at ${ticker.last}`
+            )
+          } else {
+            TradingExecutor.addTradeBtc()
+            telegramBot.sendMessage(
+              chatId,
+              `Order did not fully close in time and all open orders were cancelled for ${symbol}!`
+            )
+          }
           return closedOrder
         } catch (err) {
-          TradingExecutor.setTrades(true)
-          await telegramBot.sendMessage(
+          telegramBot.sendMessage(
             chatId,
             `Order did not fully close in time for ${symbol}!`
           )
         }
       } else {
-        await telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
+        telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
         return
       }
 
@@ -80,7 +82,7 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
     }
 
     if (TradingExecutor.TradeCount >= TradingExecutor.MaxTrades) {
-      await telegramBot.sendMessage(chatId, 'Max trades reached')
+      telegramBot.sendMessage(chatId, 'Max trades reached')
       return
     }
 

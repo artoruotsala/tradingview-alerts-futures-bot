@@ -42,7 +42,6 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
           `🔴 SELL ${order.status} for ${symbol} at ${order.price}`
         )
 
-        info(`🔴 SELL ${order.status} for ${symbol} at ${order.price}`)
         return order
       }
 
@@ -52,32 +51,36 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
         chatId,
         `Sell for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
       )
-
-      info(
-        `Sell for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
-      )
     } else if (order.status === 'open') {
-      TradingExecutor.setTrades(false)
       if (symbol === 'BTC/TUSD') {
         try {
           const closedOrder = await checkOrderUntilClosedOrTimeout(
             account.exchange,
             symbol,
-            order.id
-          )
-          await telegramBot.sendMessage(
-            chatId,
-            `🔴 SELL ${closedOrder.status} for ${symbol} at ${order.price}`
+            order.id,
+            undefined,
+            undefined,
+            true
           )
 
-          info(`🔴 SELL ${closedOrder.status} for ${symbol} at ${order.price}`)
-          TradingExecutor.setTrades(true)
+          if (closedOrder.status === 'closed') {
+            TradingExecutor.removeTradeBtc()
+            await telegramBot.sendMessage(
+              chatId,
+              `🔴 SELL ${closedOrder.status} for ${symbol} at ${closedOrder.price}`
+            )
+          } else {
+            TradingExecutor.removeTradeBtc()
+            await telegramBot.sendMessage(
+              chatId,
+              `Order closed at market price but failed to fully close for ${symbol}. Close manually!`
+            )
+          }
           return closedOrder
         } catch (err) {
-          TradingExecutor.setTrades(true)
           await telegramBot.sendMessage(
             chatId,
-            `Order did not fully close in time for ${symbol} - close manually!`
+            `Error in order handling for ${symbol} - close manually!`
           )
           return
         }

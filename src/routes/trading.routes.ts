@@ -7,6 +7,8 @@ import { validateTrade } from '../validators/trade.validator'
 import { TradingExecutor } from '../services/trading/trading.executor'
 import { Order } from 'ccxt'
 import { writeOrderToFile } from '../services/trade.logger'
+import { removeOpenBuys } from '../services/trading/removebuys'
+import { chatId, telegramBot } from '../server'
 
 const router = Router()
 
@@ -21,10 +23,19 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
     }
 
     if (
+      direction === Side.Buy ||
       direction === Side.Long ||
-      direction === Side.Short ||
-      direction === Side.Buy
+      direction === Side.Short
     ) {
+      if (TradingExecutor.OpenTrade === 'sell') {
+        // Logic to skip the buy if a sell is in progress
+        res.write(JSON.stringify({ message: 'Sell in progress, buy skipped.' }))
+        telegramBot.sendMessage(chatId, `Sell in progress, buy skipped.`)
+        return
+      }
+
+      TradingExecutor.setOpenTrade('buy')
+
       order = await openTrade(req.body)
       res.write(
         JSON.stringify({
@@ -38,6 +49,16 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
       direction === Side.Sell ||
       direction === Side.Exit
     ) {
+      if (TradingExecutor.OpenTrade === 'buy') {
+        telegramBot.sendMessage(
+          chatId,
+          'Removing buy order and write buy to db...'
+        )
+        await removeOpenBuys()
+      }
+
+      TradingExecutor.setOpenTrade('sell')
+
       order = await closeTrade(req.body)
 
       res.write(
@@ -55,6 +76,7 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
 
     if (order) {
       writeOrderToFile(order)
+      TradingExecutor.setOpenTrade('none')
     }
   } catch (err) {
     res.writeHead(HttpCode.INTERNAL_SERVER_ERROR)
