@@ -38,7 +38,7 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
         orderPrice
       )
 
-      telegramBot.sendMessage(chatId, `Starting to buy for ${symbol}...`)
+      await telegramBot.sendMessage(chatId, `Starting to buy for ${symbol}...`)
 
       if (order.status === 'closed') {
         TradingExecutor.addTradeBtc()

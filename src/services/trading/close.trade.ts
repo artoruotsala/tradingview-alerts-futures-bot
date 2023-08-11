@@ -37,7 +37,7 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
     if (order.status === 'closed') {
       if (symbol === 'BTC/TUSD') {
         TradingExecutor.removeTradeBtc()
-        await telegramBot.sendMessage(
+        telegramBot.sendMessage(
           chatId,
           `🔴 SELL ${order.status} for ${symbol} at ${order.price}`
         )
@@ -65,20 +65,20 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
 
           if (closedOrder.status === 'closed') {
             TradingExecutor.removeTradeBtc()
-            await telegramBot.sendMessage(
+            telegramBot.sendMessage(
               chatId,
               `🔴 SELL ${closedOrder.status} for ${symbol} at ${closedOrder.price}`
             )
           } else {
             TradingExecutor.removeTradeBtc()
-            await telegramBot.sendMessage(
+            telegramBot.sendMessage(
               chatId,
               `Order closed at market price but failed to fully close for ${symbol}. Close manually!`
             )
           }
           return closedOrder
         } catch (err) {
-          await telegramBot.sendMessage(
+          telegramBot.sendMessage(
             chatId,
             `Error in order handling for ${symbol} - close manually!`
           )
@@ -86,7 +86,7 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
         }
       }
     } else {
-      await telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
+      telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
       return
     }
 
