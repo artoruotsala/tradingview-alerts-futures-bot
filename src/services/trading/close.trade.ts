@@ -78,6 +78,7 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
           }
           return closedOrder
         } catch (err) {
+          TradingExecutor.setOpenTrade('none')
           telegramBot.sendMessage(
             chatId,
             `Error in order handling for ${symbol} - close manually!`
@@ -86,6 +87,7 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
         }
       }
     } else {
+      TradingExecutor.setOpenTrade('none')
       telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
       return
     }

@@ -271,6 +271,7 @@ export class TradingAccount {
     const contracts = position
 
     if (!contracts) {
+      TradingExecutor.setOpenTrade('none')
       throw new Error('No open position')
     }
 

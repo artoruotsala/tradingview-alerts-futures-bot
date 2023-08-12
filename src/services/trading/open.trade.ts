@@ -68,12 +68,14 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
           }
           return closedOrder
         } catch (err) {
+          TradingExecutor.setOpenTrade('none')
           telegramBot.sendMessage(
             chatId,
             `Order did not fully close in time for ${symbol}!`
           )
         }
       } else {
+        TradingExecutor.setOpenTrade('none')
         telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
         return
       }
