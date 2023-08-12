@@ -31,7 +31,10 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
 
       order = await account.createLimitOrder(symbol, side, tokens, orderPrice)
 
-      await telegramBot.sendMessage(chatId, `Starting to sell for ${symbol}...`)
+      await telegramBot.sendMessage(
+        chatId,
+        `Starting to sell for ${symbol}... Tradingview price: ${price} - Realtime price: ${TradingExecutor.BTCTUSDPrice}`
+      )
     }
 
     if (order.status === 'closed') {

@@ -8,6 +8,7 @@ import { DISCLAIMER, SERVER_RUNNING } from './services/logger.messages'
 import { errorMiddleware } from './middleware/errors.middleware'
 import { tradingRouter } from './routes/trading.routes'
 import { setTelegramCallbacks } from './services/telegram/setTelegramCallbacks'
+import { TradingExecutor } from './services/trading/trading.executor'
 
 const app = express()
 app.use(cors())
@@ -46,4 +47,5 @@ app.listen(PORT, async () => {
   info(SERVER_RUNNING)
   warning(DISCLAIMER)
   if (telegramBot) setTelegramCallbacks(telegramBot)
+  TradingExecutor.trackBTCTUSDPrice()
 })

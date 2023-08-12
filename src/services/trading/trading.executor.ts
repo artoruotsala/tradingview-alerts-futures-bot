@@ -1,3 +1,5 @@
+import { TradingAccount } from './trading.account'
+
 // !if server restarts, trading will be on
 export class TradingExecutor {
   public static Trades = true
@@ -5,6 +7,8 @@ export class TradingExecutor {
   public static cancelOrder = false
   public static TradeCount = 0
   public static MaxTrades = 4
+
+  public static BTCTUSDPrice = 0.0
 
   public static BtcTradeCount = 0
   public static BtcMaxTrades = 2
@@ -49,5 +53,23 @@ export class TradingExecutor {
 
   static getProfitInPercent(balance: number) {
     return ((balance - this.startingBalance) / this.startingBalance) * 100
+  }
+
+  public static async trackBTCTUSDPrice() {
+    const exchange = TradingAccount.getInstance().exchange
+
+    if (exchange.has.watchTicker) {
+      while (true) {
+        try {
+          const ticker = await exchange.watchTicker('BTC/TUSD')
+          this.BTCTUSDPrice = ticker.last
+        } catch (error) {
+          console.error('Error while fetching BTC/TUSD price:', error)
+          await new Promise((resolve) => setTimeout(resolve, 10000)) // wait 10s before retrying
+        }
+      }
+    } else {
+      console.error('The exchange does not support WebSocket ticker updates.')
+    }
   }
 }

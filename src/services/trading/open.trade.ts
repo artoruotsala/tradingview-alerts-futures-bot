@@ -38,13 +38,16 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
         orderPrice
       )
 
-      await telegramBot.sendMessage(chatId, `Starting to buy for ${symbol}...`)
+      await telegramBot.sendMessage(
+        chatId,
+        `Starting to buy for ${symbol}... Tradingview price: ${price} - Realtime price: ${TradingExecutor.BTCTUSDPrice}`
+      )
 
       if (order.status === 'closed') {
         TradingExecutor.addTradeBtc()
         await telegramBot.sendMessage(
           chatId,
-          `🟢 BUY ${order.status} for ${symbol} at ${ticker.last}`
+          `🟢 BUY ${order.status} for ${symbol} at ${price}`
         )
       } else if (order.status === 'open') {
         try {

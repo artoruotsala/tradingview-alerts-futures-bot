@@ -1,6 +1,6 @@
-import ccxt, { Balances, Dictionary, Exchange, Order, Ticker } from 'ccxt'
+import { Balances, Dictionary, Exchange, Order, Ticker } from 'ccxt'
+import { pro as ccxt } from 'ccxt'
 import { Side, Trade } from '../../entities/trade.entities'
-import { ExchangeId } from '../../constants/exchanges.id'
 import { getRelativeOrderSize } from './helpers/getRelativeOrderSize'
 import { getTokensAmount } from './helpers/getTokensAmount'
 import { TradingExecutor } from './trading.executor'
