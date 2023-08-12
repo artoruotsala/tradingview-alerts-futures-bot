@@ -5,7 +5,7 @@ export async function checkOrderUntilClosedOrTimeout(
   exchange: Exchange,
   symbol: string,
   orderId: string,
-  timeout = 60 * 15 * 1000,
+  timeout = 60 * 120 * 1000,
   interval = 10 * 1000,
   closeAtMarketPrice: boolean = false
 ) {

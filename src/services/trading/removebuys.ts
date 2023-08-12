@@ -1,4 +1,3 @@
-import { TradingAccount } from './trading.account'
 import { TradingExecutor } from './trading.executor'
 
 export const removeOpenBuys = async () => {
@@ -11,7 +10,7 @@ export const removeOpenBuys = async () => {
       }, 30000)
     })
   }
+  await waitForCancelOrderToBeFalse()
 
   TradingExecutor.cancelOrder = false
-  await waitForCancelOrderToBeFalse()
 }

@@ -76,7 +76,7 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
 
     if (order) {
       TradingExecutor.setOpenTrade('none')
-      writeOrderToFile(order)
+      if (order?.filled > 0) writeOrderToFile(order)
     }
   } catch (err) {
     res.writeHead(HttpCode.INTERNAL_SERVER_ERROR)
