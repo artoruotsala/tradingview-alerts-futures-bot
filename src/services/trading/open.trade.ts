@@ -26,10 +26,9 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
     if (symbol === 'BTC/TUSD') {
       const ticker: Ticker = await account.getTicker(symbol)
       const { tokens } = await account.getOpenOrderOptionsBtc(trade, ticker)
-      const orderPrice = (await account.priceToPrecision(
-        symbol,
-        parseFloat(price)
-      )) as number
+
+      const precisePrice = Math.min(TradingExecutor.BTCTUSDPrice, Number(price))
+      const orderPrice = account.priceToPrecision(symbol, precisePrice)
 
       let order = await account.createLimitOrder(
         symbol,
@@ -40,7 +39,7 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
 
       await telegramBot.sendMessage(
         chatId,
-        `Starting to buy for ${symbol}... Tradingview price: ${price} - Realtime price: ${TradingExecutor.BTCTUSDPrice}`
+        `Starting to buy for ${symbol} @ ${orderPrice}...`
       )
 
       if (order.status === 'closed') {

@@ -4,7 +4,7 @@ import { info } from '../console.logger'
 import { TradingAccount } from './trading.account'
 import { TradingExecutor } from './trading.executor'
 import { Exchange, Order } from 'ccxt'
-import { checkOrderUntilClosedOrTimeout } from './helpers/checkOrderUntilClosed'
+import { checkOrderUntilClosedOrTimeoutClose } from './helpers/checkOrderUntilClosedClose'
 
 export const closeTrade = async (trade: Trade): Promise<Order> => {
   const account = TradingAccount.getInstance()
@@ -24,16 +24,14 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
           ? await account.getCloseOrderOptionsBtc(trade)
           : await account.getCloseOrderOptions(trade)
 
-      const orderPrice = (await account.priceToPrecision(
-        symbol,
-        parseFloat(price)
-      )) as number
+      const precisePrice = Math.min(TradingExecutor.BTCTUSDPrice, Number(price))
+      const orderPrice = account.priceToPrecision(symbol, precisePrice) // little tweak for BTC price
 
       order = await account.createLimitOrder(symbol, side, tokens, orderPrice)
 
       await telegramBot.sendMessage(
         chatId,
-        `Starting to sell for ${symbol}... Tradingview price: ${price} - Realtime price: ${TradingExecutor.BTCTUSDPrice}`
+        `Starting to sell for ${symbol} @ ${orderPrice}...`
       )
     }
 
@@ -57,13 +55,12 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
     } else if (order.status === 'open') {
       if (symbol === 'BTC/TUSD') {
         try {
-          const closedOrder = await checkOrderUntilClosedOrTimeout(
+          const closedOrder = await checkOrderUntilClosedOrTimeoutClose(
             account.exchange,
             symbol,
             order.id,
             undefined,
-            undefined,
-            true
+            undefined
           )
 
           if (closedOrder.status === 'closed') {
