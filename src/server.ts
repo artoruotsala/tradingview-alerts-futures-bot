@@ -9,6 +9,7 @@ import { errorMiddleware } from './middleware/errors.middleware'
 import { tradingRouter } from './routes/trading.routes'
 import { setTelegramCallbacks } from './services/telegram/setTelegramCallbacks'
 import { TradingExecutor } from './services/trading/trading.executor'
+import { runBackupTimer } from './services/dropbox/createBackup'
 
 const app = express()
 app.use(cors())
@@ -48,4 +49,5 @@ app.listen(PORT, async () => {
   warning(DISCLAIMER)
   if (telegramBot) setTelegramCallbacks(telegramBot)
   TradingExecutor.trackBTCTUSDPrice()
+  runBackupTimer()
 })
