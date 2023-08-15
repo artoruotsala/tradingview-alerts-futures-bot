@@ -1,3 +1,4 @@
+import axios from 'axios'
 import TelegramBot from 'node-telegram-bot-api'
 import { chatId } from '../../server'
 import { SERVER_RUNNING } from '../logger.messages'
@@ -12,9 +13,7 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
       reply_markup: {
         keyboard: [
           [{ text: '/trades on' }, { text: '/trades off' }],
-          [{ text: '/tradecount add' }, { text: '/tradecount remove' }],
-          [{ text: '/maxtrades add' }, { text: '/maxtrades remove' }],
-          [{ text: '/tradecount addbtc' }, { text: '/tradecount removebtc' }],
+          [{ text: '/manual buy' }, { text: '/manual sell' }],
           [{ text: '/profit get' }],
         ],
         resize_keyboard: true,
@@ -33,6 +32,41 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
     } else if (resp && resp === 'on') {
       TradingExecutor.setTrades(true)
       telegramBot.sendMessage(chatId, 'Trades enabled')
+    }
+  })
+
+  telegramBot.onText(/\/manual (.+)/, async (msg, match) => {
+    const resp = match?.[1]
+    const currentPrice = TradingExecutor.BTCTUSDPrice
+
+    if (resp && resp === 'buy') {
+      try {
+        const trade = {
+          direction: 'buy',
+          symbol: 'BTC/TUSD',
+          size: '99%',
+          price: currentPrice.toString(),
+          manual: 'manualtrade',
+        }
+
+        axios.post('/trade', trade)
+      } catch (error) {
+        console.error('Error executing trade:', error)
+      }
+    } else if (resp && resp === 'sell') {
+      try {
+        const trade = {
+          direction: 'sell',
+          symbol: 'BTC/TUSD',
+          size: '99%',
+          price: currentPrice.toString(),
+          manual: 'manualtrade',
+        }
+
+        axios.post('/trade', trade)
+      } catch (error) {
+        console.error('Error executing trade:', error)
+      }
     }
   })
 
