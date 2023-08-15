@@ -20,7 +20,7 @@ function createBackup() {
         contents: data,
       })
       .then((response) => {
-        console.log('Backup uploaded successfully:', response)
+        console.log('Backup uploaded successfully')
         telegramBot.sendMessage(
           chatId,
           'Backup uploaded successfully to Dropbox!'
