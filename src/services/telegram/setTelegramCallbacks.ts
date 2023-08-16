@@ -1,7 +1,11 @@
 import axios from 'axios'
 import TelegramBot from 'node-telegram-bot-api'
+import { Side, Trade } from 'src/entities/trade.entities'
 import { chatId } from '../../server'
 import { SERVER_RUNNING } from '../logger.messages'
+import { writeOrderToFile } from '../trade.logger'
+import { closeTrade } from '../trading/close.trade'
+import { openTrade } from '../trading/open.trade'
 import { TradingAccount } from '../trading/trading.account'
 import { TradingExecutor } from '../trading/trading.executor'
 
@@ -39,33 +43,43 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
     const resp = match?.[1]
     const currentPrice = TradingExecutor.BTCTUSDPrice
 
-    if (resp && resp === 'buy') {
-      try {
-        const trade = {
-          direction: 'buy',
-          symbol: 'BTC/TUSD',
-          size: '99%',
-          price: currentPrice.toString(),
-          manual: 'manualtrade',
-        }
+    if (TradingExecutor.OpenTrade !== 'none') {
+      telegramBot.sendMessage(
+        chatId,
+        TradingExecutor.OpenTrade + ' in progress, skipped.'
+      )
+      return
+    }
 
-        axios.post('/trade', trade)
-      } catch (error) {
-        console.error('Error executing trade:', error)
+    if (resp && resp === 'buy') {
+      TradingExecutor.setOpenTrade('buy')
+
+      const trade = new Trade()
+      trade.direction = Side.Buy
+      trade.symbol = 'BTC/TUSD'
+      trade.size = '100%'
+      trade.price = currentPrice.toString()
+
+      const order = await openTrade(trade)
+
+      if (order) {
+        TradingExecutor.setOpenTrade('none')
+        if (order?.filled > 0) writeOrderToFile(order)
       }
     } else if (resp && resp === 'sell') {
-      try {
-        const trade = {
-          direction: 'sell',
-          symbol: 'BTC/TUSD',
-          size: '99%',
-          price: currentPrice.toString(),
-          manual: 'manualtrade',
-        }
+      TradingExecutor.setOpenTrade('sell')
 
-        axios.post('/trade', trade)
-      } catch (error) {
-        console.error('Error executing trade:', error)
+      const trade = new Trade()
+      trade.direction = Side.Sell
+      trade.symbol = 'BTC/TUSD'
+      trade.size = '100%'
+      trade.price = currentPrice.toString()
+
+      const order = await closeTrade(trade)
+
+      if (order) {
+        TradingExecutor.setOpenTrade('none')
+        if (order?.filled > 0) writeOrderToFile(order)
       }
     }
   })

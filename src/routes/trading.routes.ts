@@ -14,14 +14,14 @@ const router = Router()
 
 export const postTrade = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { direction, symbol, size, leverage, price, manual }: Trade = req.body
+    const { direction, symbol, size, leverage, price }: Trade = req.body
 
     let order: Order
 
-    if (!TradingExecutor.Trades && manual !== 'manualtrade') {
+    if (!TradingExecutor.Trades) {
       telegramBot.sendMessage(
         chatId,
-        `Automatic trades disabled. Received order request: ${direction} | ${symbol} | ${price}`
+        `Automatic trades disabled, but received order request: ${direction} | ${symbol} | ${price}`
       )
       throw new Error('Trading is disabled')
     }

@@ -66,10 +66,6 @@ export class Trade {
   @IsOptional()
   takeProfit?: string
 
-  @IsString()
-  @IsOptional()
-  manual?: string
-
   @IsOptional()
   @ArrayMinSize(0)
   @ArrayMaxSize(5)
