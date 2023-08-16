@@ -6,7 +6,11 @@ function createBackup() {
   const dbPath = '/bot/orders.db'
   const backupPath = `/orders-${new Date().toISOString().replace(/:/g, '-')}.db`
 
-  const dbx = new Dropbox({ accessToken: process.env.DROPBOX_TOKEN })
+  const dbx = new Dropbox({
+    clientId: process.env.DROPBOX_APP_KEY,
+    clientSecret: process.env.DROPBOX_APP_SECRET,
+    refreshToken: process.env.DROPBOX_TOKEN,
+  })
 
   fs.readFile(dbPath, (err, data) => {
     if (err) {
