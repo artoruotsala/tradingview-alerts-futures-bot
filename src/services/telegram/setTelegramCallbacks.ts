@@ -1,6 +1,5 @@
-import axios from 'axios'
 import TelegramBot from 'node-telegram-bot-api'
-import { Side, Trade } from 'src/entities/trade.entities'
+import { Side, Trade } from '../../entities/trade.entities'
 import { chatId } from '../../server'
 import { SERVER_RUNNING } from '../logger.messages'
 import { writeOrderToFile } from '../trade.logger'
