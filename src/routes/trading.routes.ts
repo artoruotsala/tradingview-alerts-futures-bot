@@ -43,6 +43,7 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
       order = await openTrade(req.body)
       res.write(
         JSON.stringify({
+          size: order.filled || 0,
           message: `Trade ${direction} | ${symbol} | ${
             size.includes('%') ? `${size}` : `${size}$`
           }${leverage ? `| leverage: ${leverage}` : ''} success!`,
@@ -67,6 +68,7 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
 
       res.write(
         JSON.stringify({
+          size: order.filled || 0,
           message: `Trade exited | ${symbol} | success!`,
         })
       )

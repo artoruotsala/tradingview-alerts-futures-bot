@@ -1,7 +1,7 @@
 version: '3'
 services:
   bot:
-    image: btctradingbot:0.25
+    image: btctradingbot:0.26
     build:
       context: .
       dockerfile: Dockerfile
