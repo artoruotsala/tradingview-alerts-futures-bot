@@ -8,7 +8,7 @@ export class TradingExecutor {
   public static TradeCount = 0
   public static MaxTrades = 4
 
-  public static BTCTUSDPrice = 0.0
+  public static BTCFDUSDPrice = 0.0
 
   public static BtcTradeCount = 0
   public static BtcMaxTrades = 2
@@ -55,16 +55,16 @@ export class TradingExecutor {
     return ((balance - this.startingBalance) / this.startingBalance) * 100
   }
 
-  public static async trackBTCTUSDPrice() {
+  public static async trackBTCFDUSDPrice() {
     const exchange = TradingAccount.getInstance().exchange
 
     if (exchange.has.watchTicker) {
       while (true) {
         try {
-          const ticker = await exchange.watchTicker('BTC/TUSD')
-          this.BTCTUSDPrice = ticker.last
+          const ticker = await exchange.watchTicker('BTC/FDUSD')
+          this.BTCFDUSDPrice = ticker.last
         } catch (error) {
-          console.error('Error while fetching BTC/TUSD price:', error)
+          console.error('Error while fetching BTC/FDUSD price:', error)
           await new Promise((resolve) => setTimeout(resolve, 10000)) // wait 10s before retrying
         }
       }

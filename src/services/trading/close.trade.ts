@@ -20,11 +20,14 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
       order = await account.createMarketOrder(symbol, side, tokens)
     } else if (price) {
       const { tokens, side } =
-        symbol === 'BTC/TUSD'
+        symbol === 'BTC/FDUSD'
           ? await account.getCloseOrderOptionsBtc(trade)
           : await account.getCloseOrderOptions(trade)
 
-      const precisePrice = Math.min(TradingExecutor.BTCTUSDPrice, Number(price))
+      const precisePrice = Math.min(
+        TradingExecutor.BTCFDUSDPrice,
+        Number(price)
+      )
       const orderPrice = account.priceToPrecision(symbol, precisePrice) // little tweak for BTC price
 
       order = await account.createLimitOrder(symbol, side, tokens, orderPrice)
@@ -36,7 +39,7 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
     }
 
     if (order.status === 'closed') {
-      if (symbol === 'BTC/TUSD') {
+      if (symbol === 'BTC/FDUSD') {
         TradingExecutor.removeTradeBtc()
         telegramBot.sendMessage(
           chatId,
@@ -53,7 +56,7 @@ export const closeTrade = async (trade: Trade): Promise<Order> => {
         `Sell for ${symbol} is ${order.status} : Trade Count ${TradingExecutor.TradeCount}`
       )
     } else if (order.status === 'open') {
-      if (symbol === 'BTC/TUSD') {
+      if (symbol === 'BTC/FDUSD') {
         try {
           const closedOrder = await checkOrderUntilClosedOrTimeoutClose(
             account.exchange,

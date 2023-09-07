@@ -23,11 +23,14 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
       takeProfitLevels,
     } = trade
 
-    if (symbol === 'BTC/TUSD') {
+    if (symbol === 'BTC/FDUSD') {
       const ticker: Ticker = await account.getTicker(symbol)
       const { tokens } = await account.getOpenOrderOptionsBtc(trade, ticker)
 
-      const precisePrice = Math.min(TradingExecutor.BTCTUSDPrice, Number(price))
+      const precisePrice = Math.min(
+        TradingExecutor.BTCFDUSDPrice,
+        Number(price)
+      )
       const orderPrice = account.priceToPrecision(symbol, precisePrice)
 
       let order = await account.createLimitOrder(

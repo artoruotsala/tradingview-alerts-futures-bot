@@ -209,7 +209,7 @@ export class TradingAccount {
       let balance = 0
 
       if (this.exchangeId === 'binance')
-        balance = (await this.getBalance()).TUSD.free as number
+        balance = (await this.getBalance()).FDUSD.free as number
 
       // let maxTrades = TradingExecutor.BtcMaxTrades
       // let tradeCount = TradingExecutor.BtcTradeCount

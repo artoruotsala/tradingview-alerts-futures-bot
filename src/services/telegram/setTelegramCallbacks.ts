@@ -40,7 +40,7 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
 
   telegramBot.onText(/\/manual (.+)/, async (msg, match) => {
     const resp = match?.[1]
-    const currentPrice = TradingExecutor.BTCTUSDPrice
+    const currentPrice = TradingExecutor.BTCFDUSDPrice
 
     if (TradingExecutor.OpenTrade !== 'none') {
       telegramBot.sendMessage(
@@ -55,7 +55,7 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
 
       const trade = new Trade()
       trade.direction = Side.Buy
-      trade.symbol = 'BTC/TUSD'
+      trade.symbol = 'BTC/FDUSD'
       trade.size = '100%'
       trade.price = currentPrice.toString()
 
@@ -70,7 +70,7 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
 
       const trade = new Trade()
       trade.direction = Side.Sell
-      trade.symbol = 'BTC/TUSD'
+      trade.symbol = 'BTC/FDUSD'
       trade.size = '100%'
       trade.price = currentPrice.toString()
 

@@ -3,6 +3,7 @@ import axios from 'axios'
 import sqlite3 from 'sqlite3'
 import fs from 'fs'
 
+// TUSD changed to FDUSD since binance raised fees of TUSD
 export interface TUSDtoEUROPrice extends Order {
   TUSD_to_EURO?: number
 }
@@ -28,18 +29,18 @@ const db = new sqlite3.Database('/bot/orders.db', (err) => {
 //   })
 // })
 
-export async function getTUSDEURRate() {
+export async function getFDUSDEURRate() {
   try {
     const response = await axios.get(
       'https://api.coingecko.com/api/v3/simple/price',
       {
         params: {
-          ids: 'true-usd',
+          ids: 'first-digital-usd',
           vs_currencies: 'eur',
         },
       }
     )
-    return response.data['true-usd'].eur
+    return response.data['first-digital-usd'].eur
   } catch (error) {
     console.error('Error fetching TUSD to EUR rate from CoinGecko:', error)
     return null
@@ -47,7 +48,7 @@ export async function getTUSDEURRate() {
 }
 
 export async function writeOrderToFile(order: Order) {
-  const rate = await getTUSDEURRate()
+  const rate = await getFDUSDEURRate()
 
   // Convert the order price to EUR
   let priceInEUR = 0
