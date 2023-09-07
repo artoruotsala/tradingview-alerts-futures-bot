@@ -48,6 +48,6 @@ app.listen(PORT, async () => {
   info(SERVER_RUNNING)
   warning(DISCLAIMER)
   if (telegramBot) setTelegramCallbacks(telegramBot)
-  TradingExecutor.trackBTCTUSDPrice()
+  TradingExecutor.trackBTCFDUSDPrice()
   runBackupTimer()
 })
