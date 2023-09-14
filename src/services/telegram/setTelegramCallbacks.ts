@@ -91,9 +91,11 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
     const resp = match?.[1]
 
     if (resp && resp === 'up') {
-      TradingExecutor.TrailingStartFactor += 0.0001
+      TradingExecutor.TrailingStartFactor =
+        (Math.round(TradingExecutor.TrailingStartFactor * 10000) + 1) / 10000
     } else if (resp && resp === 'down') {
-      TradingExecutor.TrailingStartFactor -= 0.0001
+      TradingExecutor.TrailingStartFactor =
+        (Math.round(TradingExecutor.TrailingStartFactor * 10000) - 1) / 10000
     }
 
     telegramBot.sendMessage(
@@ -106,9 +108,11 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
     const resp = match?.[1]
 
     if (resp && resp === 'up') {
-      TradingExecutor.TrailingDropValue += 0.0001
+      TradingExecutor.TrailingDropValue =
+        (Math.round(TradingExecutor.TrailingDropValue * 10000) + 1) / 10000
     } else if (resp && resp === 'down') {
-      TradingExecutor.TrailingDropValue -= 0.0001
+      TradingExecutor.TrailingDropValue =
+        (Math.round(TradingExecutor.TrailingDropValue * 10000) - 1) / 10000
     }
 
     telegramBot.sendMessage(
