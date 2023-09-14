@@ -41,6 +41,7 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
       TradingExecutor.setOpenTrade('buy')
 
       order = await openTrade(req.body)
+
       res.write(
         JSON.stringify({
           size: order.filled || 0,
@@ -54,22 +55,22 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
       direction === Side.Sell ||
       direction === Side.Exit
     ) {
-      if (TradingExecutor.OpenTrade === 'buy') {
-        telegramBot.sendMessage(
-          chatId,
-          'Removing buy order and write buy to db...'
-        )
-        await removeOpenBuys()
-      }
+      // if (TradingExecutor.OpenTrade === 'buy') {
+      //   telegramBot.sendMessage(
+      //     chatId,
+      //     'Removing buy order and write buy to db...'
+      //   )
+      //   await removeOpenBuys()
+      // }
 
-      TradingExecutor.setOpenTrade('sell')
+      // TradingExecutor.setOpenTrade('sell')
 
-      order = await closeTrade(req.body)
+      // order = await closeTrade(req.body)
 
       res.write(
         JSON.stringify({
           size: order.filled || 0,
-          message: `Trade exited | ${symbol} | success!`,
+          message: `Automatic sell disabled`,
         })
       )
     } else {

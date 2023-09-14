@@ -12,16 +12,7 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
   const account = TradingAccount.getInstance()
 
   try {
-    const {
-      direction,
-      symbol,
-      leverage,
-      stopLoss,
-      takeProfit,
-      price,
-      size,
-      takeProfitLevels,
-    } = trade
+    const { direction, symbol, price } = trade
 
     if (symbol === 'BTC/FDUSD') {
       const ticker: Ticker = await account.getTicker(symbol)
@@ -49,8 +40,9 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
         TradingExecutor.addTradeBtc()
         await telegramBot.sendMessage(
           chatId,
-          `🟢 BUY ${order.status} for ${symbol} at ${price}`
+          `🟢 BUY ${order.status} for ${symbol} at ${order?.average}`
         )
+        TradingExecutor.EntryPrice = order?.average
       } else if (order.status === 'open') {
         try {
           const closedOrder = await checkOrderUntilClosedOrTimeout(
@@ -62,26 +54,31 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
             TradingExecutor.addTradeBtc()
             telegramBot.sendMessage(
               chatId,
-              `🟢 BUY ${closedOrder.status} for ${symbol} at ${ticker.last}`
+              `🟢 BUY ${closedOrder.status} for ${symbol} at ${closedOrder?.average}`
             )
+            TradingExecutor.EntryPrice = closedOrder?.average
           } else {
             TradingExecutor.addTradeBtc()
             telegramBot.sendMessage(
               chatId,
               `Order did not fully close in time and all open orders were cancelled for ${symbol}!`
             )
+            if (closedOrder?.average && closedOrder?.average > 0)
+              TradingExecutor.EntryPrice = closedOrder?.average
           }
           return closedOrder
         } catch (err) {
           TradingExecutor.setOpenTrade('none')
           telegramBot.sendMessage(
             chatId,
-            `Order did not fully close in time for ${symbol}!`
+            `Open order did not fully close in time for ${symbol}!`
           )
+          if (order?.average && order?.average > 0)
+            TradingExecutor.EntryPrice = order?.average
         }
       } else {
         TradingExecutor.setOpenTrade('none')
-        telegramBot.sendMessage(chatId, `Sell for ${symbol} failed`)
+        telegramBot.sendMessage(chatId, `Open for ${symbol} failed`)
         return
       }
 

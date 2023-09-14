@@ -17,6 +17,8 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
         keyboard: [
           [{ text: '/trades on' }, { text: '/trades off' }],
           [{ text: '/manual buy' }, { text: '/manual sell' }],
+          [{ text: '/traillevel up' }, { text: '/traillevel down' }],
+          [{ text: '/traildrop up' }, { text: '/traildrop down' }],
           [{ text: '/profit get' }],
         ],
         resize_keyboard: true,
@@ -52,6 +54,7 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
 
     if (resp && resp === 'buy') {
       TradingExecutor.setOpenTrade('buy')
+      TradingExecutor.EntryPrice = currentPrice
 
       const trade = new Trade()
       trade.direction = Side.Buy
@@ -67,6 +70,7 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
       }
     } else if (resp && resp === 'sell') {
       TradingExecutor.setOpenTrade('sell')
+      TradingExecutor.EntryPrice = null
 
       const trade = new Trade()
       trade.direction = Side.Sell
@@ -83,25 +87,43 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
     }
   })
 
-  telegramBot.onText(/\/tradecount (.+)/, async (msg, match) => {
+  telegramBot.onText(/\/traillevel (.+)/, async (msg, match) => {
+    const resp = match?.[1]
+
+    if (resp && resp === 'up') {
+      TradingExecutor.TrailingStartFactor += 0.0001
+    } else if (resp && resp === 'down') {
+      TradingExecutor.TrailingStartFactor -= 0.0001
+    }
+
+    telegramBot.sendMessage(
+      chatId,
+      `New trail level value: ${TradingExecutor.TrailingStartFactor}`
+    )
+  })
+
+  telegramBot.onText(/\/traildrop (.+)/, async (msg, match) => {
+    const resp = match?.[1]
+
+    if (resp && resp === 'up') {
+      TradingExecutor.TrailingDropValue += 0.0001
+    } else if (resp && resp === 'down') {
+      TradingExecutor.TrailingDropValue -= 0.0001
+    }
+
+    telegramBot.sendMessage(
+      chatId,
+      `New trail drop value: ${TradingExecutor.TrailingDropValue}`
+    )
+  })
+
+  telegramBot.onText(/\/maxtrades (.+)/, async (msg, match) => {
     const resp = match?.[1]
 
     if (resp && resp === 'add') {
-      TradingExecutor.addTrade()
+      TradingExecutor.addMaxTrade()
     } else if (resp && resp === 'remove') {
-      TradingExecutor.removeTrade()
-    } else if (resp && resp === 'addbtc') {
-      TradingExecutor.addTradeBtc()
-    } else if (resp && resp === 'removebtc') {
-      TradingExecutor.removeTradeBtc()
-    }
-
-    if ((resp && resp === 'addbtc') || (resp && resp === 'removebtc')) {
-      telegramBot.sendMessage(
-        chatId,
-        `Current BTC trades count: ${TradingExecutor.BtcTradeCount}`
-      )
-      return
+      TradingExecutor.removeMaxTrade()
     }
 
     telegramBot.sendMessage(
