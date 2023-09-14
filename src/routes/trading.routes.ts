@@ -35,6 +35,13 @@ export const postTrade = async (req: Request, res: Response): Promise<void> => {
         // Logic to skip the buy if a sell is in progress
         res.write(JSON.stringify({ message: 'Sell in progress, buy skipped.' }))
         telegramBot.sendMessage(chatId, `Sell in progress, buy skipped.`)
+        res.end()
+        return
+      }
+
+      if (TradingExecutor.BtcTradeCount >= 1) {
+        res.write(JSON.stringify({ message: 'Buy skipped.' }))
+        res.end()
         return
       }
 

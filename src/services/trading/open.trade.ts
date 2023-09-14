@@ -58,7 +58,7 @@ export const openTrade = async (trade: Trade): Promise<Order> => {
             )
             TradingExecutor.EntryPrice = closedOrder?.average
           } else {
-            TradingExecutor.addTradeBtc()
+            // TradingExecutor.addTradeBtc()
             telegramBot.sendMessage(
               chatId,
               `Order did not fully close in time and all open orders were cancelled for ${symbol}!`
