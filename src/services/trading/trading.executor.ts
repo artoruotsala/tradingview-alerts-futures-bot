@@ -69,12 +69,16 @@ export class TradingExecutor {
 
     let highestPeak = 0
     let inTrailingMode = false
+    let trailTriggerPrice: number = null
+    let nextCheckTime = null
 
     if (exchange.has.watchTicker) {
       while (true) {
         try {
           const ticker = await exchange.watchTicker('BTC/FDUSD')
           this.BTCFDUSDPrice = ticker.last
+
+          const currentTime = new Date()
 
           // Stop Loss Logic
           if (
@@ -104,16 +108,32 @@ export class TradingExecutor {
             }
 
             this.EntryPrice = null
+            trailTriggerPrice = null
+            nextCheckTime = null
             inTrailingMode = false
             highestPeak = 0
             continue
           }
 
           if (this.EntryPrice) {
-            if (
-              !inTrailingMode &&
-              this.BTCFDUSDPrice >= this.EntryPrice * this.TrailingStartFactor
-            ) {
+            if (!nextCheckTime || currentTime >= nextCheckTime) {
+              let currentMinutes = currentTime.getMinutes()
+              let minutesToAdd = 15 - (currentMinutes % 15)
+              nextCheckTime = new Date(
+                currentTime.getTime() + minutesToAdd * 60000
+              )
+
+              nextCheckTime.setSeconds(0)
+              nextCheckTime.setMilliseconds(0)
+
+              if (!trailTriggerPrice)
+                trailTriggerPrice = this.EntryPrice * this.TrailingStartFactor
+              else
+                trailTriggerPrice =
+                  this.BTCFDUSDPrice * this.TrailingStartFactor
+            }
+
+            if (!inTrailingMode && this.BTCFDUSDPrice >= trailTriggerPrice) {
               inTrailingMode = true
               highestPeak = this.BTCFDUSDPrice
             }
@@ -149,13 +169,17 @@ export class TradingExecutor {
                   if (order?.filled > 0) writeOrderToFile(order)
                 }
                 this.EntryPrice = null
-                inTrailingMode = false // Reset the trailing mode
-                highestPeak = 0 // Reset the highest peak
+                trailTriggerPrice = null
+                nextCheckTime = null
+                inTrailingMode = false
+                highestPeak = 0
               }
             }
-          } else {
+          } else if (!this.EntryPrice) {
             inTrailingMode = false
             highestPeak = 0
+            trailTriggerPrice = null
+            nextCheckTime = null
           }
         } catch (error) {
           console.error('Error while fetching BTC/FDUSD price:', error)

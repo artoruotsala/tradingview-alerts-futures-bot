@@ -54,7 +54,6 @@ export const setTelegramCallbacks = (telegramBot: TelegramBot) => {
 
     if (resp && resp === 'buy') {
       TradingExecutor.setOpenTrade('buy')
-      TradingExecutor.EntryPrice = currentPrice
 
       const trade = new Trade()
       trade.direction = Side.Buy
